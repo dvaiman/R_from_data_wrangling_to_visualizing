@@ -1,0 +1,38 @@
+---
+title: "Untitled"
+format: revealjs
+---
+
+
+
+# Table for key stringr functions
+| **Function**                            | **Description**                                                                                                                         | **Example**                                                |
+|----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|
+| **`str_detect()`**                     | Checks whether a pattern (regex) exists in a string. Returns a logical TRUE/FALSE.                                                      | `str_detect("Hello world", "world")` → TRUE               |
+| **`str_subset()`**                     | Filters a character vector to the elements that match a certain pattern.                                                                | `str_subset(c("apple", "banana", "pear"), "a")` → `c("apple", "banana")` |
+| **`str_replace()`**                    | Replaces the **first** matched occurrence of a pattern with a new string.                                                               | `str_replace("cat bat rat", "at", "o")` → `"co bat rat"`   |
+| **`str_replace_all()`**                | Replaces **all** matched occurrences of a pattern with a new string.                                                                    | `str_replace_all("cat bat rat", "at", "o")` → `"co bo ro"` |
+| **`str_split()`**                      | Splits strings into substrings based on a pattern (e.g., spaces, commas, etc.).                                                         | `str_split("a, b, c", ",")` → `list("a", " b", " c")`      |
+| **`str_c()`**                          | Concatenates (joins) multiple strings into a single string.                                                                             | `str_c("R", "is", "great", sep = " ")` → `"R is great"`    |
+| **`str_length()`**                     | Returns the length (number of characters) of a string.                                                                                  | `str_length("Hello")` → 5                                 |
+| **`str_trim()`**                       | Removes leading and trailing whitespace.                                                                                                 | `str_trim("  Hello World  ")` → `"Hello World"`            |
+| **`str_squish()`**                     | Removes leading, trailing, and **extra** internal whitespace.                                                                            | `str_squish("Hello     World")` → `"Hello World"`          |
+| **`str_to_upper()`** / **`str_to_lower()`** | Converts strings to uppercase or lowercase, respectively.                                                                    | `str_to_upper("Hello")` → `"HELLO"`                        |
+
+
+
+
+
+## forcats
+
+# Table for key forcats functions
+| **Function**          | **Description**                                                                                                                                | **Example**                                                                       |
+|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| **`fct_relevel()`**   | Reorders factor levels to a specified order.                                                                                                   | `fct_relevel(my_factor, "High", "Medium", "Low")`                                 |
+| **`fct_recode()`**    | Renames (relabels) factor levels easily.                                                                                                       | `fct_recode(my_factor, "Yes" = "Y", "No" = "N")`                                  |
+| **`fct_lump()`**      | Collapses less frequent levels into an `"Other"` category (useful for combining rare categories).                                              | `fct_lump(my_factor, n = 3)`                                                      |
+| **`fct_collapse()`**  | Explicitly merges specific factor levels into one or more new levels.                                                                          | `fct_collapse(my_factor, "North" = c("North-East","North-West"))`                 |
+| **`fct_rev()`**       | Reverses the order of factor levels.                                                                                                           | `fct_rev(my_factor)`                                                              |
+| **`fct_infreq()`**    | Reorders factor levels in descending order of frequency (the most common level will come first).                                               | `fct_infreq(my_factor)`                                                           |
+| **`fct_inorder()`**   | Reorders factor levels by the order in which they appear in the data.                                                                          | `fct_inorder(my_factor)`                                                          |
+| **`fct_explicit_na()`** | Makes missing values explicit as an actual factor level, often labeled `"NA"`.                                                               | `fct_explicit_na(my_factor, na_level = "Unknown")`                                |

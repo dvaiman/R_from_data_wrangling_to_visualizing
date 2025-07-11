@@ -1,0 +1,913 @@
+---
+title: "Explorativ dataanalys"
+format: revealjs
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## "Let the data speak"
+
+-   EDA (Exploratory Data Analysis/Explorativ data analys)\
+    -   Myntat av John Tukey (1977).\
+    -   Syftet är att utforska data – hitta mönster, outliers,
+        distributioner\
+    -   Hjälper oss ställa bättre frågor innan formell modellering.\
+    -   Visuell, intuitiv, iterativ process.\
+    -   Inga strikta regler, det är för att få en känsla av vad du kan
+        förvänta dig av data\
+
+## Typ av EDA
+
+::: incremental
+-   **Univariat analys:**
+    -   Förstå fördelningen/variation inom variabler
+    -   tex histogram, densitetskurvor och Q-Q-plots.
+    -   Medelvärde, median, standardavvikelse.
+-   **Bivariat analys:**
+    -   Hitta kovarians mellan variabler
+    -   Sambandsanalyser som scatterplots och korrelationsmått.
+    -   Jämförelser mellan grupper, t.ex. med boxplots och violinplots.
+-   **Multivariat analys:**
+    -   Mönster och relationer mellan flera variabler
+    -   Multivariata visualiseringar som dimensionreduktion (t.ex. PCA)
+        och klustring (heatmaps, pairs plot).
+:::
+
+## Dataset: Pingvin-datasetet
+
+-   Vi kommer att använda `penguins`-datasetet från paketet
+    `palmerpenguins`.
+-   Innehåller data om pingvinarter, öar, näbblängd, simfenslängd,
+    kroppsmassa och kön.
+
+## Frågor
+
+::: panel-tabset
+## Frågor
+
+-   Börja med en fråga
+
+-   Frågor föder ofta fler frågor
+
+-   Iterativ process
+
+## Översiktliga frågor
+
+-   Vilken variation finns inom variablerna
+
+-   Vilken typ av kovarians finns mellan variablerna
+
+## Specifika frågor
+
+-   Vilka skillnader finns mellan arterna?\
+-   Finns det överlapp mellan arter/öar/kön?\
+-   Vilken art är vanligast?\
+-   Finns det jämn fördelning mellan arterna på dom olika öarna?\
+-   Finns det extrema värden (outliers)?\
+-   Hur ser sambandet mellan variablerna ut?\
+-   Hur starkt är sambandet mellan näbblängd och simfenslängd,
+    kroppsmassa?\
+-   Är förhållandet linjärt eller icke-linjärt?\
+-   Finns det variabler som påverkar relationen mellan andra variabler
+-   Vilka variabler har saknade värden, finns det några mönster?\
+-   Vad sker över tid i en viss variabel, eller inom grupper av en viss
+    variabel\
+:::
+
+## Setup
+
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+library(gtsummary)
+library(showtext)
+
+
+font_add_google("Roboto", "roboto")
+showtext_auto()
+
+
+# Ändra tema
+theme_set(
+  theme_minimal(
+    base_size = 20,
+    base_family = "Roboto"
+  ) +
+    theme(
+      panel.grid.minor = element_blank()
+        )
+)
+
+
+```
+
+## Översiktstabell
+
+::: panel-tabset
+## Fråga
+
+Vad är medelvärdet och standardavvikelsen inom kön och art för olika
+numeriska variabler samt vad är distrubutionen i kategoriska variabler.
+
+## Lösning
+
+-   Skapa tabell med hjälp av tidyverse och gt paketet
+
+```{r}
+
+
+penguins_summary <- penguins|> 
+  group_by(species, sex)|> 
+  summarize(
+    bill_length_mm_mean = mean(bill_length_mm, na.rm = TRUE),
+    bill_length_mm_sd   = sd(bill_length_mm, na.rm = TRUE),
+    bill_depth_mm_mean  = mean(bill_depth_mm, na.rm = TRUE),
+    bill_depth_mm_sd    = sd(bill_depth_mm, na.rm = TRUE),
+    flipper_length_mm_mean = mean(flipper_length_mm, na.rm = TRUE),
+    flipper_length_mm_sd   = sd(flipper_length_mm, na.rm = TRUE),
+    body_mass_g_mean     = mean(body_mass_g, na.rm = TRUE),
+    body_mass_g_sd       = sd(body_mass_g, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )|> 
+  # Runda medelvärden och standardavvikelser till 1 decimal
+  mutate(
+    across(contains("_mean"), ~ round(.x, 1)),
+    across(contains("_sd"), ~ round(.x, 1))
+  )|> 
+  # Byt namn på kolumnerna 
+  rename(
+    "Art"                        = species,
+    "Kön"                        = sex,
+    "Näbblängd (mm) Medel"       = bill_length_mm_mean,
+    "Näbblängd (mm) SD"          = bill_length_mm_sd,
+    "Näbbdjup (mm) Medel"        = bill_depth_mm_mean,
+    "Näbbdjup (mm) SD"           = bill_depth_mm_sd,
+    "Simfenslängd (mm) Medel"    = flipper_length_mm_mean,
+    "Simfenslängd (mm) SD"       = flipper_length_mm_sd,
+    "Kroppsvikt (g) Medel"       = body_mass_g_mean,
+    "Kroppsvikt (g) SD"          = body_mass_g_sd,
+    "Antal"                      = n
+  )
+```
+
+## Svar
+
+```{r}
+penguins_summary
+
+```
+
+## Lösning 2
+
+-   Använd gtsummary, `library(gtsummary)`, för att skapa en tabell
+
+```{r}
+
+# filtrera manligapingviner och skapa en tabell för dom
+tbl_male <- penguins|> 
+  filter(sex == "male")|> 
+  tbl_summary(
+    by = species,
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    missing = "always"
+  )|> 
+  bold_labels()
+
+
+# filtrera kvinligapingviner och skapa en tabell för dom
+tbl_female <- penguins|> 
+  filter(sex == "female")|> 
+  tbl_summary(
+    by = species,
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    missing = "always"
+  )|> 
+  bold_labels()
+
+# Sätta ihop tabellerna
+tbl_merged <- tbl_merge(
+  tbls = list(tbl_male, tbl_female),
+  tab_spanner = c("**Male**", "**Female**")
+)
+
+```
+
+## Svar 2
+
+```{r}
+tbl_merged
+```
+:::
+
+## Univariat analys
+
+::: panel-tabset
+## Fråga
+
+-   vad är distrubutionen av olika variabler
+
+## Kategorisk
+
+```{r}
+
+penguins_long_c <- penguins |> 
+   select(where(is.factor)) |> 
+  pivot_longer(cols = c(everything()), 
+               names_to = "variable", 
+               values_to = "category")
+
+penguins_long_c |> 
+  ggplot(aes(y = category)) +
+  geom_bar() +
+  facet_wrap(~variable, scales = "free")
+
+```
+
+## kontinuerlig
+
+```{r}
+penguins|> 
+  filter(!is.na(bill_length_mm))|> 
+  ggplot(aes(x = bill_length_mm)) +
+  geom_histogram(binwidth = 2, fill = "steelblue", color = "white") 
+```
+
+## Kontinuerlig
+
+```{r}
+penguins |> 
+  filter(!is.na(bill_depth_mm)) |> 
+  ggplot(aes(x = bill_depth_mm)) +
+  geom_density(fill = "gold3", color = "gold4", alpha = 0.7) 
+```
+
+## Kontinuerlig
+
+```{r}
+penguins_long <- penguins |> 
+   select(where(is.numeric)) |> 
+  pivot_longer(cols = everything(), 
+               names_to = "variable", 
+               values_to = "value")
+
+
+penguins_long |> 
+  ggplot(aes(x = value)) +
+  geom_density(fill = "indianred", alpha = 0.7)  +
+  facet_wrap(~ variable, scales = "free") +
+  labs(
+    title = "Histogram över kontinuerliga variabler i penguins-datat",
+    x = "Värde",
+    y = "Densitet"
+  )
+
+
+
+```
+
+## Kontinuerlig
+
+```{r}
+
+
+ggplot(data = penguins_long, 
+       aes(
+           y = value)) +
+  geom_boxplot()  +
+  facet_wrap(~ variable, scales = "free")
+
+```
+
+## Kontinuerlig
+
+```{r}
+library(patchwork)
+
+# Skapa histogram
+hist_plot <- penguins |> 
+  filter(!is.na(flipper_length_mm)) |> 
+  ggplot(aes(x = flipper_length_mm)) +
+  geom_histogram(binwidth = 5, fill = "steelblue", color = "white") +
+  labs(
+    title = "Histogram över Simmfenslängd"
+  )
+
+# Skapa Q-Q-plot
+qq_plot <- penguins|> 
+  filter(!is.na(flipper_length_mm))|> 
+  ggplot(aes(sample = flipper_length_mm)) +
+  geom_qq(color = "navy") +
+  geom_qq_line(color = "red") +
+  labs(
+    title = "Q-Q-plot för Simmfenslängd",
+    x = "Teoretiska kvintiler",
+    y = "Verkliga kvantiler"
+  )
+
+# Kombinera med patchwork
+hist_plot + qq_plot
+```
+:::
+
+## Bivariat analys
+
+::::: panel-tabset
+## Fråga
+
+-   Hur ser distributionen ut i olika grupper av variabler
+
+-   Finns det samband mellan variabler
+
+## Kontinuerlig och kategorisk
+
+Vi vill se distributioner av bill length, bill depth och body mass i
+olika arter.
+
+::: fragment
+1)  Data i långt format
+
+```{r}
+penguins_long <- penguins |> 
+   select(where(is.numeric), species) |> 
+  pivot_longer(cols = c(everything(), -species), 
+               names_to = "variable", 
+               values_to = "value")
+
+penguins_long
+```
+:::
+
+::: fragment
+2)  Figur
+
+```{r}
+
+
+penguins_long |> 
+  filter(!is.na(value)) |> 
+  ggplot(aes(x = value, fill = species)) +
+  geom_density(alpha = 0.7)  +
+  facet_wrap(~ variable, scales = "free") +
+  scale_color_manual() +
+  labs(
+    title = "Distributione över kontinuerliga variabler i penguins-data",
+    x = "Värde",
+    y = "Densitet"
+  )
+```
+:::
+
+## Kontinuerlig och kategorisk
+
+```{r}
+
+
+penguins_long |> 
+  filter(!is.na(value)) |> 
+  ggplot(aes(x = value, fill = species)) +
+  geom_density(alpha = 0.7, position = "fill", color = "transparent")  +
+  facet_wrap(~ variable, scales = "free") +
+  labs(
+    title = "normaliserad distrubution i kontinuerliga variabler i penguins-data",
+    x = "Värde",
+    y = "Distribution"
+  )
+```
+
+## Kontinuerlig och kategorisk
+
+Boxplot med signifikansvärden
+
+```{r}
+library(ggsignif)
+
+ggplot(data = penguins, 
+       aes(x = species, 
+           y = bill_length_mm,
+           fill = species)) +
+  geom_boxplot() +
+  geom_signif(
+    comparisons = list(
+      c("Adelie", "Chinstrap"),
+      c("Adelie", "Gentoo"),
+      c("Chinstrap", "Gentoo")
+    ),
+    map_signif_level = TRUE,
+    y_position = c(60, 62, 64) # olika nivåer för varje linje
+  ) +
+  labs(
+    title = "Boxplot med multipla jämförelser",
+    y = "Näbblängd (mm)"
+  )
+```
+
+## Kontinuerlig x2
+
+Två kontinuerliga variabler
+
+```{r}
+penguins |> 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(alpha = .5) +
+  geom_smooth(method = "lm") 
+```
+:::::
+
+## Multivariat
+
+::: panel-tabset
+## Simpsons paradox
+
+::: fragment
+```{r}
+p_plot <- penguins |> 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point(alpha = .5) +
+  geom_smooth(method = "lm")  +
+  scale_colour_manual(values = c("darkorange","purple","cyan4")) +
+  scale_fill_manual(values = c("darkorange","purple","cyan4")) +
+  labs(title = "Simpsons paradox") +
+  theme(legend.position = c(0.85, 0.15),
+        plot.title.position = "plot",
+        plot.title = element_text(face= "italic")) # hjust = 0, 
+```
+:::
+
+::: fragment
+```{r}
+p_plot
+```
+:::
+
+## Icke linjärt
+
+```{r}
+smooth_plot <- penguins |> 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point(alpha = .5) +
+  geom_smooth() +
+  scale_colour_manual(values = c("darkorange","purple","cyan4")) +
+  scale_fill_manual(values = c("darkorange","purple","cyan4")) +
+  labs(title = "Simpsons paradox") +
+  theme(legend.position = c(0.85, 0.15),
+        plot.title.position = "plot",
+        plot.title = element_text(hjust = 0, face= "italic"))
+```
+
+::: fragment
+```{r}
+smooth_plot
+```
+:::
+
+## Pairs plot
+
+```{r}
+penguins |> 
+  select(species, body_mass_g, ends_with("_mm")) |>  
+  GGally::ggpairs(aes(color = species),
+                  columns = c("flipper_length_mm", 
+                              "body_mass_g", 
+                              "bill_length_mm", 
+                              "bill_depth_mm")) +
+  scale_colour_manual(values = c("darkorange","purple","cyan4")) +
+  scale_fill_manual(values = c("darkorange","purple","cyan4"))
+```
+
+## Heatmap
+
+1.  Sammanfatta data per art
+
+```{r}
+
+
+penguins_summary <- penguins |> 
+  drop_na(species, bill_length_mm, bill_depth_mm, body_mass_g)|> 
+  group_by(species)|> 
+  summarise(
+    bill_length = mean(bill_length_mm),
+    bill_depth  = mean(bill_depth_mm),
+    body_mass   = mean(body_mass_g),
+    .groups = "drop"
+  )
+
+penguins_summary
+
+```
+
+
+::: fragment
+2.  Skala (centrera + standardisera) variablerna
+
+```{r}
+
+
+
+penguins_scaled <- 
+  penguins_summary |> 
+  mutate(
+    across(c(bill_length, bill_depth, body_mass), ~ as.numeric(scale(.x))) # skalar (z-transformation) bill_length, bill_depth, body_mass
+    )
+
+penguins_scaled
+
+```
+:::
+
+::: fragment
+3.  Gör om tibblen till långtformat
+
+```{r}
+
+
+penguins_clustered_long <- penguins_scaled|> 
+  pivot_longer(
+    cols = c("bill_length", "bill_depth", "body_mass"), 
+    names_to = "variable", 
+    values_to = "scaled_value"   # detta är redan z-score efter "scale()"
+  )
+
+penguins_clustered_long
+
+```
+:::
+
+::: fragment
+4.  plotta heatmap
+
+```{r}
+
+
+ggplot(penguins_clustered_long, 
+       aes(x = species, y = variable, fill = scaled_value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(
+    low = "steelblue", mid = "white", high = "darkorange", midpoint = 0
+  ) +
+  scale_x_discrete(
+    position = "top"
+    ) +
+
+  labs(
+    title = "",
+    x = "",
+    y = "",
+    fill = "Z-score"
+  ) +
+  theme(
+    axis.text.x = element_text(hjust = 1),
+    panel.grid = element_blank(),
+    legend.position = "top",
+    legend.key.width  = unit(2, 'cm'),
+    legend.title.position = "top"
+  )
+
+
+```
+:::
+
+::: fragment
+5.  plotta text
+
+```{r}
+
+ggplot(penguins_clustered_long, 
+       aes(x = species, y = variable, fill = scaled_value)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = round(scaled_value, 2))) +
+  scale_fill_gradient2(
+    low = "steelblue", mid = "white", high = "darkorange", midpoint = 0
+  ) +
+  scale_x_discrete(
+    position = "top"
+    ) +
+
+  labs(
+    title = "",
+    x = "",
+    y = "",
+    fill = "Z-score"
+  ) +
+  theme(
+    axis.text.x = element_text(hjust = 1),
+    panel.grid = element_blank(),
+    legend.position = "top",
+    legend.key.width  = unit(2, 'cm'),
+    legend.title.position = "top"
+  )
+```
+:::
+
+:::
+
+## PCA - (multivariat)
+
+::: panel-tabset
+## Info
+
+PCA: Bryter ner variabler i ett nytt koordinatsystem (principal
+components) som fångar den största variationen.
+
+-   Utforska data, hur variabler hänger ihop.
+
+-   Kan användas när variabler är starkt korrelerade med varandra och
+    man vill minska antalet till en uppsättning oberoende komponenter.
+
+-   Bra när man har många variabler för att se den större bilden
+
+::: fragment
+Detta exempel bygger på:\
+https://allisonhorst.github.io/palmerpenguins/articles/pca.html#plot-pca-loadings-scores
+
+https://juliasilge.com/blog/cocktail-recipes-umap/
+:::
+
+## Förbehandla data
+
+Vi använder recipes-paketet från tidymodels för att utföra en PCA. Vi
+kommer först att förbehandla data:
+
+1.  uppdatera "roll"
+2.  Ta bort rader med NA.\
+3.  Centrera alla prediktorer (värde - medelvärdet, medelvärde = 0) och ge dem standardavvikelse = 1. Resultatet kallas Z-score.
+
+```{r}
+library(tidymodels) 
+
+penguin_recipe <-
+  recipe(~., data = penguins) |> 
+  update_role(species, island, sex,  new_role = "id") |> 
+  step_naomit(all_predictors()) |> 
+  step_normalize(all_predictors()) |>  # centers and scales
+  step_pca(all_predictors(), id = "pca") |> 
+  prep()
+
+
+
+
+
+```
+
+
+
+![](images/recipee.png)
+
+
+::: fragment
+```{r}
+penguin_pca <- 
+  penguin_recipe |>  
+  tidy(id = "pca") 
+
+penguin_pca
+
+class(penguin_recipe)
+class(penguin_pca)
+```
+:::
+
+## Varians per komponent
+
+Vi kan med recipes::tidy() titta på hur mycket varians varje komponent
+förklarar:
+
+::: framgment
+```{r}
+penguin_recipe |>  
+  tidy(id = "pca", type = "variance") 
+```
+:::
+
+::: framgment
+```{r}
+penguin_recipe |>  
+  tidy(id = "pca", type = "variance") |>  
+  filter(terms == "percent variance") |>  
+  ggplot(aes(x = component, y = value)) + 
+  geom_col(fill = "#b6dfe2") + 
+  xlim(c(0, 5)) + 
+  ylab("% av total varians")
+```
+:::
+
+## Plotta PCA-loadings
+
+```{r}
+penguin_pca |> 
+  mutate(terms = tidytext::reorder_within(terms, abs(value), component)) |> 
+  ggplot(aes(value, terms, fill = value > 0)) +
+  geom_col() +
+  facet_wrap(~component, scales = "free_y") +
+  tidytext::scale_y_reordered() +
+  scale_fill_manual(values = c("#b6dfe2", "#0A537D")) +
+  labs(
+    x = "Absolut bidrag",
+    y = NULL, 
+    fill = "Positiv?"
+  )
+```
+
+## PC 1 vs 2
+
+```{r}
+# Gör pca-loadings i bredare format
+pca_wider <- penguin_pca |>  
+  pivot_wider(names_from = component, id_cols = terms)
+
+# Extrahera PCA-scores
+
+pca_plot_data <-
+  bake(penguin_recipe, new_data = NULL) 
+
+
+
+
+pca_plot_data |> 
+  ggplot(aes(PC1, PC2)) +
+  geom_point(aes(color = species, shape = species), 
+             alpha = 0.8, 
+             size = 2) +
+  scale_colour_manual(values = c("darkorange","purple","cyan4")) +
+  geom_segment(data = pca_wider,
+               aes(xend = PC1, yend = PC2),
+               x = 0, y = 0,
+               arrow = arrow(length = unit(.05, "inches"), type = "closed")) + 
+  geom_text(data = pca_wider,
+            aes(x = PC1, y = PC2, label = terms),
+            hjust = 0, 
+            vjust = 1,
+            size = 5, 
+            color = '#0A537D')
+```
+
+Här ser vi tydligt att flipper_length_mm och body_mass_g dominerar för
+PC1. Gentoo-pingviner sticker ut längs den axeln
+
+::: fragment
+Bekräfta med beskrivande statistik:
+
+```{r}
+penguins|>  
+  group_by(species)|>  
+  summarize(across(c(flipper_length_mm, body_mass_g), mean, na.rm = TRUE))
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, colour = species)) +
+  geom_point() +
+  scale_colour_manual(values = c("darkorange","purple","cyan4"))
+```
+:::
+
+## PC 2 vs 3
+
+```{r}
+pca_plot_data |> 
+ ggplot(aes(PC2, PC3)) +
+  geom_point(aes(color = species, shape = species), 
+             alpha = 0.8, 
+             size = 2) +
+  scale_colour_manual(values = c("darkorange","purple","cyan4")) + 
+  geom_segment(data = pca_wider,
+               aes(xend = PC2, yend = PC3), 
+               x = 0, y = 0,
+               arrow = arrow(length = unit(.05, "inches"), type = "closed")) + 
+  geom_text(data = pca_wider,
+            aes(x = PC2, y = PC3, label = terms), 
+            hjust = 0, 
+            vjust = 1,
+            size = 5, 
+            color = '#0A537D')
+```
+
+Här ser vi att bill_length_mm och bill_depth_mm dominerar PC2. Här ser
+vi att Chinstrap-pingvinerna är skiljda från resten.
+
+
+::: fragment
+Bekräfta med beskrivande statistik:
+
+```{r}
+penguins|>  
+  group_by(species)|>  
+  summarize(across(c(bill_depth_mm, bill_length_mm), mean, na.rm = TRUE))
+
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, colour = species)) +
+  geom_point() +
+  scale_colour_manual(values = c("darkorange","purple","cyan4"))
+```
+:::
+
+## Sammanfattning
+
+-   Gentoo-pingviner är generellt störst, med längre fenor och högre
+    kroppsmassa.
+
+-   Chinstrap och Adelie är mer lika i storlek (flipper_length_mm,
+    body_mass_g) men skiljer sig i näbbmått (bill_length_mm,
+    bill_depth_mm).
+
+:::
+
+
+
+## Saknade värden, missing, NA
+
+::: panel-tabset
+## Per variabel
+
+```{r}
+library(naniar)
+
+gg_miss_var(penguins)
+```
+
+## Mönster
+
+```{r}
+gg_miss_upset(penguins)
+```
+
+## Little's missing completely at random (MCAR) test
+
+Noll hypotesen är att data är missing completely at random
+
+High p value (\>0.05) = missing completely at random
+
+-   ifall data är MCAR då ska man inte imputera eftersom saknad data
+    inte kan prediceras av andra variabler i datasetet
+
+```{r}
+mcar_test(penguins)
+```
+
+-   
+:::
+
+------------------------------------------------------------------------
+
+## Paket för att utforska och sammanfatta data i R
+
+-   [**skimr**](https://github.com/ropensci/skimr): Sammanfatta din data
+    snabbt och enkelt.
+-   [**naniar**](https://naniar.njtierney.com/): Undersök saknade värden
+    ur olika perspektiv.
+-   [**DataExplorer**](https://cran.r-project.org/web/packages/DataExplorer/index.html):
+    Skapa automatiserade datarapporter.
+-   [**summarytools**](https://cran.r-project.org/web/packages/summarytools/index.html):
+    Verktyg för sammanfattningar och deskriptiv statistik.
+-   [**SmartEDA**](https://cran.r-project.org/web/packages/SmartEDA/index.html):
+    Automatisera explorativ dataanalys.
+-   [**janitor**](https://github.com/sfirke/janitor): Rensa och summera
+    data.
+-   [**inspectdf**](https://github.com/alastairrushworth/inspectdf):
+    Visuella jämförelser av datastrukturer och innehåll.
+-   [**ggcorrplot**](https://github.com/kassambara/ggcorrplot):
+    Visualisera korrelationsmatriser med hjälp av ggplot2.
+-   [**explore**](https://cran.r-project.org/web/packages/explore/vignettes/explore.html):
+    Utforska din data
+-   [**overviewR**](https://cosimameyer.github.io/overviewR/): Få en
+    överblick av din data
+
+## Paket för att presentera data
+
+-   [**gt**](https://gt.rstudio.com/): Skapa professionella tabeller för
+    rapportering.
+
+-   [**gtsummary**](https://www.danieldsjoberg.com/gtsummary/): Generera
+    summeringstabeller med publiceringsklar formatering.
+
+-   [**reactable**](https://glin.github.io/reactable/): Skapa
+    interaktiva tabeller med sortering, filtrering och mer.
+
+-   [**flextable**](https://davidgohel.github.io/flextable/): Skapa
+    tabeller för Word, PowerPoint och HTML-dokument.
+
+-   [**kableExtra**](https://cran.r-project.org/web/packages/kableExtra/index.html):
+    Förbättra `kable`-tabeller med stil- och formateringsalternativ.
+
+-   [**formattable**](https://renkun-ken.github.io/formattable/):
+    Formatera data frames med färger och stilar för bättre presentation.
+
+-   [**plotly**](https://plotly.com/r/): Skapa interaktiva diagram och
+    visualiseringar.
+
+-   [**highcharter**](https://jkunst.com/highcharter/): Skapa
+    interaktiva visualiseringar baserat på Highcharts.
+
+-   [**broom**](https://broom.tidymodels.org/articles/broom.html):
+    Extrahera modelldata från modellobjekt till ett rektangulärt dataset
+
+-   [**marginaleffects**](https://marginaleffects.com/): Sammanfatta
+    modeller på olika sätt
+
+##  {background-color="#344956"}
+
+::: center-large-bold-yellow
+:::

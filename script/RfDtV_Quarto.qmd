@@ -1,0 +1,123 @@
+---
+title: "Quarto"
+subtitle: "R: Från datahantering till visualisering"
+
+  
+
+---
+
+
+
+## Introduktion till Quarto
+
+-   **Quarto** är ett open source program för vetenskaplig och teknisk
+    publicering.
+-   Utvecklat av samma företag (*Posit*) som skapat RStudio.
+-   Integrerar väl med **R-kod** men stöder även **Python** och
+    **Julia**.
+-   Använder **Markdown** för att skriva text.
+
+## Översikt av Quarto
+
+::: incremental
+-   Kombinerar **kod** med **text**.
+-   Skapar olika utdataformat (pandoc):
+    -   HTML-filer (webbplatser och presentationer).
+    -   Word- och PDF-dokument (rapporter och manuskript).
+-   **Layout** och **stil** appliceras separat från innehållet.
+-   Kan snabbt växla mellan olika utdataformat.
+-   Använder andra program under ytan för att omvandla text och kod till
+    olika format.
+
+:::
+
+
+
+## Komponenter
+
+-Metadata: YAML
+
+-Text: Markdown
+
+-Kod: Körs via knitr eller jupyter
+
+## YAML
+
+-“Yet Another Markup Language”
+
+YAML\* header finns högst upp i ditt Quarto dokument. denna innehåller
+metadata, titel, format (html, pdf, revealjs), och andra globala chunk
+alternativ.
+
+``` yaml
+---
+title: "My Quarto Document"
+format: html
+author: "Anders Andersson"
+date: "2024-09-03"
+---
+```
+
+YAML är känslig för indentering
+
+<br>
+
+Alternativet nedan kommer att skapa en självständig fil som du kan
+skicka till andra utan att behöva bifoga ytterligare filer. Är väldigt
+användbart.
+
+``` r
+
+
+---
+title: "My Quarto Document"
+format:  
+  html:  
+    self-contained: true
+author: "Anders Andersson"
+date: "2024-09-03"
+---
+```
+
+## YAML
+
+``` yaml
+---
+title: "My Quarto Document"
+format:  
+  html:  
+    self-contained: true  
+    code-fold: true  # gömmer koden
+author: "Anders Andersson"
+date: "2024-09-03"
+
+execute:
+  echo: true         # visa chunk outputs.
+  warning: false     # visa inte varningsmeddelanden.
+  message: false     # visa inte generella meddelanden.
+---
+```
+
+## higlighting
+
+Skriv `#| code-line-numbers: "1|2|3"` i början av en kodchunk
+
+```{r}
+#| code-line-numbers: "1|2|3"
+
+library(tidyverse)
+mtcars |> 
+  summarize(vs = sum(vs))
+```
+
+## Ytterligare resurser
+
+-   [**Boken "R for Data Science"
+    (R4DS)**](https://r4ds.hadley.nz/quarto) har ett kapitel om Quarto.
+
+-   [**Quartos webbplats**](https://quarto.org/) för dokumentation och
+    guider.
+
+-   [**Intro video**](https://youtu.be/_f3latmOhew?si=sHtfmna5rJk57iKs)
+    för att komma igång. Med tillhörande
+    [**guide**](https://quarto.org/docs/get-started/hello/rstudio.html)

@@ -1,0 +1,368 @@
+---
+title: "Pivoting"
+subtitle: "R: Från datahantering till visualisering"
+---
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library(quartomonothemer)
+library(showtext)
+
+showtext_auto()
+
+```
+
+## Ett dataset i många former
+
+::: panel-tabset
+## Dataset 1
+
+```{r}
+#| echo: false
+knitr::kable(tidyr::table1, caption = "table1: TB cases per country and year.")
+```
+
+## Dataset 2
+
+```{r}
+#| echo: false
+knitr::kable(tidyr::table4a, caption = "table4a: TB cases per country and year.")
+
+knitr::kable(tidyr::table4b, caption = "table4b: population per country and year.")
+```
+
+## Dataset 3
+
+```{r}
+#| echo: false
+knitr::kable(tidyr::table2, caption = "table2: TB cases and population per country and year.")
+```
+
+## Dataset 4
+
+```{r}
+#| echo: false
+knitr::kable(tidyr::table3, caption = "table3: TB rate per country and year.")
+```
+
+## Dataset 5
+
+```{r}
+#| echo: false
+knitr::kable(tidyr::table5, caption = "table5: TB rate per country, century and year.")
+```
+:::
+
+## Tidy Data
+
+"*Tidy/städade datasets är alla lika, men varje stökigt dataset är stökigt på sitt eget sätt.*" - Hadley Wickham.
+
+::: incremental
+Definition:
+
+Ett “tidy” dataset följer tre sammanhängande regler:
+
+1.  Varje variabel har sin egen kolumn.
+2.  Varje fall/observation har sin egen rad.
+3.  Varje värde har sin egen cell.
+:::
+
+## Tidy Data
+
+![From R for data science](images/tidy-1.png){width="80%"}
+
+## Fördelar med Tidy Data
+
+\- **Konsistens**: Du vet vad du kan förvänta dig av data.
+
+\- **Effektivitet**: Variabler i kolumner utnyttjar R:s vektoriserade funktioner, vilket gör transformationer med t.ex. dplyr naturliga och effektiva.
+
+\- **Kompatibilitet**: Tidyverse-paket som dplyr och ggplot2 är utformade för att fungera optimalt med “tidy” data.
+
+## Skillnaden mellan Messy och Tidy Data
+
+::: panel-tabset
+## Tidy
+
+-   Inte alltid lätt att veta vad tidy data är för något
+
+-   Då kan det vara bra att istället fokusera på att ha data i det format som passar uppgiften
+
+-   Ofta för visualisering och facets i ggplot2 så vill man ha data i ett väldigt "långt" format mot vad data annars är, detta för att kunna visa olika data i olika facets eller i olika grupper. tex olika antropometri variabler i facets samt i grupper av kön
+
+```{r}
+#| echo: false
+
+data <- data.frame(
+  ID = c(1, 2, 3),
+  Sex = c("Woman", "Man", "Woman"),
+  Height_cm = c(170, 165, 180),
+  Weight_kg = c(70, 60, 80)
+)
+long_data <- data.frame(
+  ID = c(1, 1, 2, 2, 3, 3),
+  Sex = c("Woman", "Woman", "Man", "Man", "Woman", "Woman"),
+  Measurement = c("Height", "Weight", "Height", "Weight", "Height", "Weight"),
+  Value = c(170, 70, 165, 60, 180, 80)
+)
+```
+
+## Tidy1
+
+```{r}
+
+data
+```
+
+## Tidy2
+
+```{r}
+
+long_data
+```
+
+## Tidy3
+
+```{r}
+ggplot(long_data, aes(x = as.factor(ID), y = Value, fill = Sex)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~Measurement) +
+  labs(
+    x = "ID",
+    y = "Value"
+  ) +
+  theme_minimal()
+```
+:::
+
+## Viktiga tidyr funktioner
+
+-   `pivot_longer()` ändrar format till ett längre format
+
+-   `pivot_wider` ändrar format till ett bredere format
+
+## Omforma tabeller
+
+1.  Varje variabel har sin egen kolumn.
+2.  Varje fall/observation har sin egen rad.
+3.  Varje värde har sin egen cell.
+
+```{r}
+#| echo: false
+df <- tribble(
+  ~id,  ~bp1, ~bp2,
+   "A",  100,  120,
+   "B",  140,  115,
+   "C",  120,  125
+)
+
+df
+```
+
+## pivot_longer(), förlänga data
+
+```{r}
+#| eval: false
+df |> 
+  pivot_longer(
+    cols = bp1:bp2,
+    names_to = "measurement",
+    values_to = "value"
+  )
+```
+
+![Kolumner som redan är variabler behöver upprepas, en gång för varje kolumn som pivoteras.](images/pivot_longer1.png){width="80%"}
+
+------------------------------------------------------------------------
+
+![Kolumnnamnen för de pivoterade kolumnerna blir värden i en ny kolumn. Dessa värden måste upprepas en gång för varje rad i det ursprungliga datasetet.](images/pivot_longer2.png){width="80%"}
+
+------------------------------------------------------------------------
+
+![Antalet värden bevaras (de upprepas inte) men delas upp rad för rad.](images/pivot_longer3.png){width="80%"}
+
+------------------------------------------------------------------------
+
+## Många variabler i kolumnnamnet
+
+-   Den första delen, `sp/rel/ep`, beskriver metoden som användes för diagnosen.
+-   Den andra delen, `m/f`, representerar kön (kodat som en binär variabel i detta dataset).
+-   Den tredje delen, `014/1524/2534/3544/4554/5564/65`, representerar åldersspann:
+    -   Exempel: \`**014**\`\`\` motsvarar åldern 0-14 år.
+
+```{r}
+whox <- who2 %>% slice_head(n=110)
+
+whox
+```
+
+------------------------------------------------------------------------
+
+```{r}
+whox |> 
+  pivot_longer(
+    cols = !c(country,year),
+    names_to = c("diagnosis", "gender", "age"), 
+    names_sep = "_",
+    values_to = "count"
+  )
+```
+
+------------------------------------------------------------------------
+
+![Att pivotera kolumner med flera informationsdelar i namnen innebär att varje kolumnnamn nu fyller i värden i flera utgångskolumner.](images/pivot_longer4.png){width="80%"}
+
+------------------------------------------------------------------------
+
+## flera olika variabelnamn och värden
+
+-   Data om fem familjer, med namn och födelsedatum för upp till två barn.
+-   Utmaningen här är att kolumnnamnen innehåller namn på två variabler
+-   (**dob** och **name**)
+-   Värden för en tredje variabel
+    -   (**child**, med värdena 1 eller 2).
+
+```{r}
+household
+```
+
+------------------------------------------------------------------------
+
+### 
+
+-   För att hantera detta behöver vi använda en vektor i **`names_to`** och inkludera den speciella värdet **`.value`**:
+    -   **`.value`** är inte namnet på en variabel, utan ett unikt värde som instruerar **`pivot_longer()`** att behandla första delen av kolumnnamnet som variabelnamn i utdata.
+    -   Detta åsidosätter den vanliga **`values_to`**-argumentet.
+
+```{r}
+household |> 
+  pivot_longer(
+    cols = !family, 
+    names_to = c(".value", "child"), 
+    names_sep = "_", 
+    values_drop_na = FALSE
+  )
+```
+
+## values_drop_na = TRUE
+
+```{r}
+household |> 
+  pivot_longer(
+    cols = !family, 
+    names_to = c(".value", "child"), 
+    names_sep = "_", 
+    values_drop_na = TRUE
+  )
+```
+
+------------------------------------------------------------------------
+
+![Att pivotera med names_to = c(".value", "num") delar upp kolumnnamnen i två delar: den första delen bestämmer namnet på utgångskolumnen (x eller y), och den andra delen bestämmer värdet i kolumnen num.](images/pivot_longer5.png){width="80%"}
+
+## pivot_wider(), göra data bredare
+
+-   Vi har två patienter med ID: **A** och **B**.
+-   För patient **A** finns tre blodtrycksmätningar.
+-   För patient **B** finns två blodtrycksmätningar.
+
+```{r}
+#| echo: false
+df <- tribble(
+  ~id, ~measurement, ~value,
+  "A",        "bp1",    100,
+  "B",        "bp1",    140,
+  "B",        "bp2",    115, 
+  "A",        "bp2",    120,
+  "A",        "bp3",    105
+)
+
+df
+```
+
+------------------------------------------------------------------------
+
+-   **`names_from = measurement`**:
+    -   Anger vilken kolumn som innehåller de värden som ska bli nya kolumnnamn i det breda formatet.\
+    -   I detta fall används värden från kolumnen `measurement` som nya kolumnnamn.
+-   **`values_from = value`**:
+    -   Anger vilken kolumn som innehåller de värden som ska fyllas i under de nya kolumnnamnen.\
+    -   Här används värden från kolumnen `value` för att fylla de nya kolumnerna.
+
+```{r}
+df |> 
+  pivot_wider(
+    names_from = measurement,
+    values_from = value
+  )
+
+```
+
+## Vad händer vid flera rader för en cell?
+
+-   Vad som händer om det finns flera rader i indata som motsvarar en enda cell i utdata.\
+-   I exemplet nedan finns två rader som motsvarar **id** "A" och **measurement** "bp1".
+
+```{r}
+#| echo: false
+df <- tribble(
+  ~id, ~measurement, ~value,
+  "A",        "bp1",    100,
+  "A",        "bp1",    102,
+  "A",        "bp2",    120,
+  "B",        "bp1",    140, 
+  "B",        "bp2",    115
+)
+
+df
+```
+
+------------------------------------------------------------------------
+
+```{r}
+#| warning: true
+#| df-print: kable
+df |>
+  pivot_wider(
+    names_from = measurement,
+    values_from = value
+  ) |>
+  print() 
+```
+
+------------------------------------------------------------------------
+
+```{r}
+df |> 
+  group_by(id, measurement) |> 
+  summarize(n = n(), .groups = "drop") |> 
+  filter(n > 1)
+```
+
+------------------------------------------------------------------------
+
+```{r}
+df |>
+  pivot_wider(
+    names_from = measurement,
+    values_from = value
+  ) |> 
+  unnest(bp1, bp2)
+```
+
+## Hur löser man detta
+
+-   Filtrera bort raden som man tror är fel innan man pivotar (`filter(!(measurement == "bp1" & value == 102))`)
+-   Ändrar ena bp1 till bp3 om man tror sig ha fel-labeled data (`mutate(measurment = if_else(measurment == "bp1" & value == 102, measurment == "bp3", measurment))`)
+-   Eller som nedan tar medelvärdet av resultatet i cellerna
+
+```{r}
+df |>
+  pivot_wider(
+    names_from = measurement,
+    values_from = value, 
+    values_fn = mean
+  ) 
+```

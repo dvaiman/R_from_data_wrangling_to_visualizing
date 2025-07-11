@@ -1,0 +1,957 @@
+---
+title: "Datavisualisering"
+subtitle: "R: Från datahantering till visualisering"
+---
+
+##  {background-color="#344956"}
+
+
+::: center-large-bold-yellow
+Datavisualisering är den grafiska representationen av information och data
+:::
+
+
+##  {background-color="#344956"}
+
+::: center-large-bold-yellow
+Utforska --\> Förstå --\> Förklara
+:::
+
+## Innan du visualiserar
+
+:::incremental
+Vad är syftet?
+
+Vem är din målgrupp?
+
+Vilket är det bästa sättet att visualisera ditt budskap?
+:::
+
+## Grammar of graphics
+
+::: incremental
+-   Myntades av [Leland Wilkinson 1999](https://en.wikipedia.org/wiki/Leland_Wilkinson)
+
+-   Användes av [Hadley Wickham 2005](https://en.wikipedia.org/wiki/Hadley_Wickham) i ett R paket
+
+![](images/ggplot2_logo.png){fig-align="center" width="30%"}
+:::
+
+## Grammar of graphics
+
+![](images/gglayers.png){width="60%"}
+
+## Grammar of graphics
+
+![](images/ggplot_basics.png)
+
+
+
+## Data
+
+```{r}
+#| echo: false
+#| 
+if (!requireNamespace("palmerpenguins", quietly = TRUE)) {
+  install.packages("palmerpenguins")
+}
+library(palmerpenguins)
+library(tidyverse)
+
+glimpse(penguins)
+
+
+theme_set(
+  theme_gray(base_size = 20)
+)
+
+```
+
+![](images/culmen_depth.png){width="45%"}
+
+## Layers/lager
+
+```{r}
+
+```
+
+::: panel-tabset
+## Lager 1
+
+```{r}
+# Layer 1: Data
+ggplot(data = penguins)
+```
+
+## Lager 2
+
+```{r}
+# Layer 2: x and y
+ggplot(data = penguins, 
+       mapping = aes(x = bill_length_mm, y = bill_depth_mm))
+```
+
+## Lager 3
+
+```{r}
+# Layer 3: geometric object(s)
+ggplot(data = penguins, 
+       mapping = aes(x = bill_length_mm, y = bill_depth_mm)) + 
+  geom_point() 
+```
+
+## Lager 4
+
+```{r}
+# Layer 4: Facets
+ggplot(data = penguins, 
+       mapping = aes(x = bill_length_mm, y = bill_depth_mm)) +
+    geom_point() + 
+  facet_wrap(~species) 
+```
+:::
+
+##  {background-color="#344956"}
+
+::: center-large-bold-yellow
+Lager 1: Data 
+:::
+
+## Data
+
+::: panel-tabset
+## Innuti ggplot
+
+```{r}
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+    geom_point()
+```
+
+## Innuti geom
+
+```{r}
+ggplot() +
+    geom_point(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm))
+```
+
+## båda
+
+```{r}
+ggplot(data = penguins) +
+    geom_point(aes(x = bill_length_mm, y = bill_depth_mm))
+```
+
+## före
+
+```{r}
+penguins |> 
+  ggplot() +
+    geom_point(aes(x = bill_length_mm, y = bill_depth_mm))
+```
+:::
+
+##  {background-color="#344956"}
+
+::: center-large-bold-yellow
+Lager 2: Aestethics 
+:::
+
+## Aesthetics/estetik
+
+
+::: {.callout-tip icon=false title=""}
+
+## 
+
+**Aesthetics** används för att länka variabler till visuella attribut i ggplot figurer. 
+
+**aes()** är platsen där du anger vilka variabler som ska bestämma tex x och y-axel värden, färg, fyllning eller form.
+:::
+
+
+## Aesthetics
+
+`x, y`: Variabeln längs x- och y-axeln
+
+`colour:` eller `color:` Anger färg på geometrier (geoms)
+
+`fill:` Färgen inuti geometrier (t.ex. staplar, områden)
+
+`group:` Gruppera geoms efter någon gruppering som finns i data, tex en linje per id-nummer i data
+
+`shape:` Formen som används för att plotta punkter, (trianglar cirklar, fyrkanter)
+
+`linetype:` Typ av linje som används (hel, streckad, etc.)
+
+`size:` Storleksskalning för att representera en extra dimension, kan användas för tex `geom_point()`
+
+`alpha:` Geometrins transparens
+
+## Aesthetics
+
+:::incremental
+- Många av dessa aesthetics kan användas utanför `aes()`, vilket innebär att de inte är bundna till någon specifik datavariabel utan har ett fast värde.
+  
+  - `geom_point(aes(x, y), alpha = 0.5))` (bestämmer transparens och har en skala från 0 till 1, där 0 är genomskinligt och 1 är fullt synlig).
+
+- **Global vs Lokal Mapping:**
+  
+  - **Global Mapping:** Aesthetics specificerade inom `ggplot(aes())` gäller för alla geoms i plotten.
+    ```r
+    ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+      geom_point()
+    ```
+  
+  - **Lokal Mapping:** Aesthetics specificerade inom ett specifikt geom gäller endast för det geom-lagret.
+    
+    ```r
+    ggplot(penguins) +
+      geom_point(aes(x = bill_length_mm, y = bill_depth_mm, color = species))
+    ```
+    
+:::
+    
+--- 
+
+::: panel-tabset
+## color
+
+```{r}
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+    geom_point()
+```
+
+## size
+
+```{r}
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species, size = body_mass_g)) +
+    geom_point()
+```
+
+## alpha
+
+```{r}
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species, size = body_mass_g) ) +
+    geom_point(alpha =.7)
+```
+
+## shape
+
+```{r}
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species, size = body_mass_g, shape = island)) +
+    geom_point(alpha =.5)
+```
+:::
+
+## Scales (skalor)
+
+
+:::incremental
+-   Skalor definierar hur data värden omvandlas till estetiska attribut som färg, storlek eller form. 
+
+-   Varje aesthetic-mappning har en motsvarande skala som styr hur värdena visualiseras.
+
+-   Varje aestetic kan endast ha en skala annars skrivs den tidigare över av den senare.
+
+-   Guider hjälper till att tolka dessa mappningar genom axlar och legender.
+
+   -    För positionsskalor fungerar axlarna som guider
+    
+   -    För färgskalor fungerar legenderna som guider
+:::
+
+---
+
+### Tre huvudskaltyper
+1. **Kontinuerlig**:
+   - För kontinuerliga data.
+   - Exempel: `scale_x_continuous()`, `scale_color_gradient()`
+
+2. **Diskret**:
+   - För kategoriska data.
+   - Exempel: `scale_color_discrete()`, `scale_shape_manual()`
+
+3. **Intervall**:
+   - För data som är indelade i intervaller.
+   - Exempel: `scale_fill_binned()`
+
+---
+
+::: panel-tabset
+## Kontnuerlig variabel
+
+```{r}
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = bill_length_mm)) +
+  geom_point() +
+  scale_color_gradient(low = "blue", high = "red") 
+```
+
+## Diskret variabel
+
+```{r}
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+    geom_point() +
+    scale_color_discrete(name = "Art", labels = c("Adelie" = "art1", "Chinstrap" = "art2", "Gentoo" = "art3"))
+```
+
+
+
+## Manuell
+
+```{r}
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() +
+  scale_color_manual(values = c("Adelie" = "orange",
+                                "Chinstrap" = "steelblue",
+                                "Gentoo" = "gold4")) 
+```
+
+## Manuella breaks
+
+```{r}
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() +
+  scale_color_manual(values = c("Adelie" = "orange",
+                                "Chinstrap" = "steelblue",
+                                "Gentoo" = "gold4")) +
+    scale_x_continuous(breaks = c(200, 210, 220),
+                     labels = c("Låg", "Medel", "Hög")) 
+```
+
+## log10
+
+```{r}
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() +
+  scale_color_manual(values = c("Adelie" = "orange",
+                                "Chinstrap" = "steelblue",
+                                "Gentoo" = "gold4")) +
+    scale_x_log10(breaks = c(200, 210, 220),
+                     labels = c("Låg", "Medel", "Hög"))
+```
+
+## Namn
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point(aes(colour = class)) + 
+  scale_x_continuous(name = "Horizontella axeln") +
+  scale_y_continuous(name = "Vertikala axeln")
+```
+:::
+
+
+## Legender och guider
+
+::: {.panel-tabset}
+## Beskrivning
+
+Varje skala är associerad med en guide (axlar och legender) som visar sambandet mellan det estetiska attributet och data. 
+
+## Med en standard legend
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  labs(
+       x = "Näbblängd (mm)",
+       y = "Näbbdjup (mm)",
+       color = "Art")
+```
+
+## Anpassad legend
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species, shape = species)) +
+  geom_point() +
+  labs(
+    x = "Näbblängd (mm)",
+    y = "Näbbdjup (mm)",
+  ) +
+  guides(
+    color = guide_legend(title = "Species", keywidth = 5, keyheight = 2),
+    shape = guide_legend(title = "Arter", keywidth = 5, keyheight = 2)
+  ) 
+```
+
+## Anpassad legend 2
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species, shape = species)) +
+  geom_point() +
+  labs(
+    x = "Näbblängd (mm)",
+    y = "Näbbdjup (mm)",
+  ) +
+  guides(
+    color = guide_legend(title = "Arter", keywidth = 5, keyheight = 2, override.aes = list(size = 5)),
+    shape = guide_legend(title = "Arter", keywidth = 5, keyheight = 2, override.aes = list(size = 5))
+  )
+```
+:::   
+
+## Relationen mellan Aesthetics, Scales, Guides, Legends, och Axes 
+
+```{r eval=FALSE, echo=FALSE}
+
+
+# Skapa diagrammet
+grViz("
+digraph ggplot2_components {
+  graph [layout = dot, rankdir = LR, fontsize=12, fontname=\"Arial\"]
+  
+  # Nodstilinställningar
+  node [shape = box, style=filled, fontname=\"Arial\", fontsize=12, color=white, fontcolor=black]
+  
+  aesthetics [label = 'Aesthetics\\naes()', shape = box, style=filled, fillcolor=lightblue]
+  scales [label = 'Scales\\nscale_x_continuous(), scale_color_manual()', shape = box, style=filled, fillcolor=indianred]
+  guides [label = 'Guides', shape = box, style=filled, fillcolor=lightyellow]
+  legends [label = 'Legends\\nguide_legend()', shape = box, style=filled, fillcolor=lightpink]
+  axes [label = 'Axes\\nscale_x_continuous(), scale_y_continuous()', shape = box, style=filled, fillcolor=lightgrey]
+  
+  aesthetics -> scales [label = 'map data to visual attributes']
+  scales -> guides [label = 'define transformations']
+  guides -> legends [label = 'provide interpretation']
+  guides -> axes [label = 'provide interpretation']
+  
+  Footnote [shape = plaintext, label = 'Diagram skapad med DiagrammeR', fontsize=10, fontname=\"Arial\", color=white]
+  
+}
+
+")
+```
+
+
+```{r ggplot2_components, echo=FALSE, results='asis'}
+
+library(DiagrammeR)
+
+diagram <- grViz("
+digraph ggplot2_components {
+  # Grafinställningar
+  graph [
+    layout = dot,
+    rankdir = TB,               # Top-Bottom layout
+    fontsize = 12,
+    fontname = \"Arial\",
+    labelloc = \"b\",           # Placera etiketten längst ner
+    label = 'Created with DiagrammeR'  # Fotnot
+  ]
+  
+  # Nodstilinställningar
+  node [
+    shape = box,
+    style = filled,
+    fontname = \"Arial\",
+    fontsize = 12
+  ]
+  
+  # Definiera huvudnoder och exempel-noder inom kluster
+  subgraph cluster_aesthetics {
+    label = \"\"
+    color = none
+    Aesthetics [label = 'Aesthetics', fillcolor = lightblue, color = blue]
+    Aesthetics_example [label = 'aes(x,y,fill,color)', fillcolor = lightblue, color = blue]
+    Aesthetics -> Aesthetics_example [label = 'Map data to visual attributes', fontsize = 10, fontname = \"Arial\"]
+  }
+  
+  subgraph cluster_scales {
+    label = \"\"
+        color = none
+    Scales [label = 'Scales', fillcolor = indianred, color = green]
+    Scales_example [label = 'scale_x_continuous(),\\nscale_color_manual(),\\nscale_fill_continuous()', fillcolor = indianred, color = green]
+    Scales -> Scales_example [label = 'Define transformations', fontsize = 10, fontname = \"Arial\"]
+  }
+  
+  subgraph cluster_guides {
+    label = \"\"
+        color = none
+    Guides [label = 'Guides', fillcolor = lightyellow, color = orange]
+    Guides_example [label = 'guides()', fillcolor = lightyellow, color = orange]
+    Guides -> Guides_example [label = 'Provide interpretation', fontsize = 10, fontname = \"Arial\"]
+  }
+  
+  subgraph cluster_legends {
+    label = \"\"
+        color = none
+    Legends [label = 'Legends', fillcolor = lightpink, color = red]
+
+
+  }
+  
+  subgraph cluster_axes {
+    label = \"\"
+        color = none
+    Axes [label = 'Axes', fillcolor = lightgrey, color = purple]
+
+
+  }
+  
+  # Definiera relationer mellan huvudnoder
+  Aesthetics -> Scales [label = '']
+  Scales -> Guides [label = '']
+  Guides -> Legends [label = '']
+  Guides -> Axes [label = '']
+}
+")
+
+diagram
+```
+
+
+## Relationen mellan Aesthetics, Guides, Legends, Scales och Axes 
+
+**Aesthetics**
+- **Definition:** Bestämmer hur data mappas till visuella attribut som färg, form, storlek, etc.
+- **Exempel:** `aes(x = bill_length_mm, y = bill_depth_mm, colour = species, size = flipper_length_mm)`
+
+**Scales**
+- **Definition:** Definierar hur data värden omvandlas till estetiska attribut.
+- **Relation till Aesthetics:** För varje aesthetic-mappning finns en motsvarande skala som styr hur värdena visualiseras.
+- **Exempel:** `scale_colour_manual()`, `scale_size_continuous()`
+
+**Guides**
+- **Definition:** Hjälper användaren att tolka de estetiska mappningarna.
+- **Relation till Scales:** Varje skala är associerad med en guide som visar relationen mellan data och det estetiska attributet.
+- **Typer av Guider:**
+  - **Legender:** För icke-position estetiska (t.ex. färg, form)
+  - **Axlar:** För position estetiska (x och y axlar)
+
+**Legends**
+- **Definition:** En typ av guide som förklarar mappningen mellan estetiska attribut och data kategorier.
+- **Relation till Guides och Scales:** Legenden genereras automatiskt baserat på skalan och den aesthetic-mappningen den är associerad med.
+- **Anpassning:** Kan anpassas med `guides()` eller temafunktioner (theme).
+
+**Axes**
+- **Definition:** Visar skalan för position estetiska (x och y axlar).
+- **Relation till Guides och Scales:** Axlar är guider för position estetiska och är kopplade till deras respektive skalor.
+- **Anpassning:** Justeras med `scale_x_*()` och `scale_y_*()` samt temafunktioner (theme).
+
+
+##  {background-color="#344956"}
+
+::: center-large-bold-yellow
+Lager 3: Geometries
+:::
+
+## Geoms
+
+::: panel-tabset
+## info
+
+Olika geoms kräver olika estetiska (aes()) mappningar.
+
+Flera geoms kan staplas som lager i en figur, men deras ordning spelar roll:\
+Senare lager skrivs ovanpå tidigare lager.
+
+## Geoms
+
+| **Geom**               | **Användningsområde**                                   | **Vanliga aesthetics**                  |
+|-------------------------|-----------------------------------------------|-----------------------------------------------|
+| `geom_point()`          | Scatterplots                                 | `x`, `y`, `color`, `size`, `shape`            |
+| `geom_line()`           | Line plots                                   | `x`, `y`, `color`, `linetype`, `linewidth`         |
+| `geom_bar()`            | Bar charts (counts)                          | `x`, `fill`                                   |
+| `geom_col()`            | Bar charts (pre-summarized data)             | `x`, `y`, `fill`                              |
+| `geom_histogram()`      | Distribution of continuous variables          | `x`, `fill`                                   |
+| `geom_boxplot()`        | Boxplots for summary statistics               | `x`, `y`, `fill`                              |
+| `geom_violin()`         | Violin plots for distribution visualization   | `x`, `y`, `fill`                              |
+| `geom_density()`        | Density plots                                | `x`, `fill`, `color`                          |
+| `geom_area()`           | Area under a curve                           | `x`, `y`, `fill`, `color`                     |
+| `geom_smooth()`         | Add a smoothed trendline                     | `x`, `y`, `color`, `linetype`                 |
+| `geom_text()`           | Add text labels                              | `x`, `y`, `label`, `color`, `size`            |
+| `geom_tile()`           | Heatmaps                                     | `x`, `y`, `fill`                              |
+| `geom_ribbon()`         | Confidence bands                             | `x`, `ymin`, `ymax`, `fill`                   |
+| `geom_polygon()`        | Polygons                                     | `x`, `y`, `group`, `fill`, `color`            |
+| `geom_segment()`        | Line segments                                | `x`, `y`, `xend`, `yend`, `color`, `size`     |
+| `geom_path()`           | Lines following a specific order of points   | `x`, `y`, `color`, `linetype`                 |
+| `geom_density_2d()`     | Contour plots for 2D density estimation      | `x`, `y`, `color`                             |
+| `geom_jitter()`         | Scatterplot with added randomness            | `x`, `y`, `color`, `size`, `shape`            |
+| `geom_errorbar()`       | Error bars                                   | `x`, `ymin`, `ymax`, `color`, `width`         |
+
+## geom_violin
+
+```{r}
+ggplot(penguins, aes(x = species, y = body_mass_g, fill = species)) +
+  geom_violin(alpha = 0.5) 
+```
+
+## geom_boxplot
+
+```{r}
+ggplot(penguins, aes(x = species, y = body_mass_g, fill = species)) +
+  geom_violin(alpha = 0.5, trim = FALSE) +  
+  geom_boxplot(width = 0.2, alpha = 0.7) 
+```
+
+## geom_point
+
+```{r}
+ggplot(penguins, aes(x = species, y = body_mass_g, fill = species)) +
+  geom_violin(alpha = 0.5, trim = FALSE) +  
+  geom_boxplot(width = 0.2, alpha = 0.7, outlier.shape = NA) +  
+  geom_point(position = position_jitter(width = 0.2), color = "black", alpha = 0.6)
+```
+:::
+
+## Geoms - position
+
+::: panel-tabset
+## info
+Position är den tredje nödvändiga delen av ett lager, tillsammans med statistics och geoms. 
+
+Position-delen av ett lager ansvarar för att "dodge", "jittra" och "nudge" grupper av data för att minimera deras överlappning, eller på annat sätt justera deras positioner.
+
+## stack
+```{r}
+ggplot(penguins, aes(x = species, fill = sex)) +
+  geom_bar(position = "stack") 
+```
+
+## dodge
+```{r}
+ggplot(penguins, aes(x = species, fill = sex)) +
+  geom_bar(position = "dodge")
+```
+
+## fill
+```{r}
+ggplot(penguins, aes(x = species, fill = sex)) +
+  geom_bar(position = "fill")
+```
+
+## identity
+```{r}
+ggplot(penguins, aes(x = species, fill = sex)) +
+  geom_bar(position = "identity", alpha = 0.6) 
+```
+
+## nudge
+```{r}
+ggplot(penguins, aes(x = species, y = body_mass_g, color = sex)) +
+ geom_point(position = position_nudge(x = 0.2))  
+```
+
+
+## jitter
+```{r}
+ggplot(penguins, aes(x = species, y = body_mass_g, color = sex)) +
+  geom_jitter(width = 0.2, alpha = 0.5)  
+ 
+```
+
+:::
+
+##  {background-color="#344956"}
+
+::: center-large-bold-yellow
+Lager 4: Facets 
+:::
+
+## Facets
+
+::: panel-tabset
+## info
+
+Facettering används för att skapa små multipla grafer baserat på kategoriska variabler.
+
+## facet_wrap()
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(color = species)) +
+  facet_wrap(~ island) 
+```
+
+## facet_grid()
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(color = species)) +
+  facet_grid(sex ~ island)
+```
+
+## facet_grid()
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(color = species)) +
+  facet_grid(sex ~ island, scales = "free")
+```
+:::
+
+##  {background-color="#344956"}
+
+::: center-large-bold-yellow
+Lager 5: Statistics 
+:::
+
+## Statistcs
+
+::: panel-tabset
+## info
+
+En statistisk transformation, eller stat, bearbetar data, oftast genom att sammanfatta dem på något sätt. Tex medelvärden, summor och andra statistiska summeringar av data. De används i bakgrunden för att skapa geoms genom att skapa ett nytt dataset med sammanfattad data.
+
+-   stat_bin(): Används för geom_bar(), geom_freqpoly(), geom_histogram()
+
+-   stat_boxplot(): Används för geom_boxplot()
+
+-   stat_smooth(): Används för geom_smooth()
+
+
+Det finns två sätt att använda dessa stat-funktioner:
+	1.	Lägga till en stat_()-funktion och skriva över standard geomet.
+	2.	Lägga till en geom_()-funktion och skriva över standard stat.
+
+
+
+
+## Med stat
+
+```{r}
+ggplot(penguins, aes(x = species, y = bill_length_mm)) + 
+  geom_point(alpha = 0.6) + 
+  stat_summary(geom = "point", fun = "mean", colour = "darkorange", size = 7) 
+```
+
+## Mer geom
+```{r}
+# Rekomenderad eftersom den tydligt visar en sammanfattning, inte rå data.
+ggplot(penguins, aes(x = species, y = bill_length_mm)) + 
+  geom_point(alpha = 0.6) + 
+  geom_point(stat = "summary", fun = "mean", colour = "darkorange", size = 7) 
+```
+
+## stat_bin
+
+stat_bin är statistiken som används för att skapa histogram. Den genererar följande variabler:
+
+-   count: Antalet observationer i varje bin (används som standard).
+-   density: Densiteten av observationer i varje bin (procent av totalen / binbredd).
+-   x: Mittpunkten av varje bin/stapel.
+
+
+## stat_bin
+```{r}
+ggplot(penguins, aes(body_mass_g)) + 
+  geom_histogram(binwidth = 100)
+```
+
+## stat_bin
+```{r}
+ggplot(penguins, aes(body_mass_g)) +
+  geom_histogram(aes(y = after_stat(density)), binwidth = 100)
+```
+
+:::
+
+##  {background-color="#344956"}
+
+::: center-large-bold-yellow
+Lager 6: Coordinates
+:::
+
+## Coordinates
+
+::: panel-tabset
+## info
+
+Medan skalorna kontrollerar vilka värden som visas på axlarna och hur de mappas från data till position, är det koordinatsystemet som faktiskt ritar dem.  
+
+Ett koordinatsystem kombinerar två positioner/variabler, x och y, för att placera objekt i en 2D-rymd mellan dessa.
+
+
+Det finns `linjära` och `icke linjära` koordinatsystem
+
+
+	
+## basplot
+
+```{r}
+
+bas <- ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) + 
+  geom_point() + 
+  geom_smooth()
+
+
+bas
+```
+
+	
+## coord_cartesian()
+
+```{r}
+
+
+# Begränsa x-axeln (tar bort data utanför 40-60 mm)
+bas + coord_cartesian(xlim = c(40, 60))
+```
+
+## coord_flip()
+
+```{r}
+bas +
+  coord_flip() 
+```
+
+## coord_fixed
+
+```{r}
+bas + 
+  coord_fixed(ratio = 1)  # Aspect ratio 1:1
+```
+
+## coord_polar()
+```{r}
+rect <- data.frame(x = 50, y = 50)
+line <- data.frame(x = c(1, 200), y = c(100, 1))
+base <- ggplot(mapping = aes(x, y)) + 
+  geom_tile(data = rect, aes(width = 50, height = 50)) + 
+  geom_line(data = line) + 
+  xlab(NULL) + ylab(NULL)
+base
+base + coord_polar("x")
+base + coord_polar("y")
+```
+
+## coord_polar()
+
+```{r}
+bas <- ggplot(penguins, aes(x = "", fill = species)) + 
+  geom_bar(width = 1) 
+
+bas
+
+bas + 
+  coord_polar(theta = "y") 
+
+bas + 
+  coord_polar(theta = "x") 
+```
+
+
+
+## coord_map()
+
+```{r}
+library(maps)
+
+world_map <- map_data("world")
+
+ggplot(world_map, aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = "#27a57a", color = "white") +
+  coord_map(projection = "ortho", orientation = c(20, 30, 0)) +
+  theme_void()
+```
+:::
+
+
+##  {background-color="#344956"}
+
+::: center-large-bold-yellow
+Lager 7: Themes 
+:::
+
+## Themes
+
+::: panel-tabset
+## info
+
+Teman påverkar grafens övergripande visuella utseende inklusive typsnitt, färger, storlek på text och marginer.
+
+## theme_minimal()
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  theme_minimal() 
+```
+
+## theme_classic()
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  theme_classic()
+```
+
+## theme()
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point(size = 3) +
+  theme(
+    panel.background = element_rect(fill = "steelblue"),
+    panel.grid.major = element_line(color = "orange"),
+    axis.title = element_text(size = 16, face = "bold"),
+    legend.position = "bottom" # "none" om man inte vill ha en legend
+  )
+```
+:::
+
+## Ändringsbara element i teman
+
+![Förändringsbara tamadelar av Isabella Benabaye](images/ggthemes_Isabella_Benabaye.png){width="80%"}
+
+##  {background-color="#344956"}
+
+::: center-large-bold-yellow
+Spara 
+:::
+
+
+## Spara
+
+``` r
+# Spara plotten i en PDF-fil
+ggsave(filename = "minfigur.pdf",  # Namnge filen och ange filformat, t.ex. .pdf, .png, .jpeg
+       plot = minfigur,            # Ange namnet på plot-objektet som ska sparas
+       height = 8.5,                # Ange önskad höjd
+       width = 11,                  # Ange önskad bredd
+       units = "cm")                # Ange enheter (t.ex. tum, in)
+
+
+ggsave(filename = "minfigur.png",  # Namnge filen och ange filformat, t.ex. .pdf, .png, .jpeg
+       plot = minfigur,            # Ange namnet på plot-objektet som ska sparas
+       height = 8.5,                # Ange önskad höjd
+       width = 11,                  # Ange önskad bredd
+       units = "cm",               # Ange enheter (t.ex. tum, in)
+       dpi = 300)                  # Kvalite på bilden
+```
+
+
+## Designriktlinjer {.left-align}
+
+- **Vänsterjustera** den mesta texten
+- **Titlar** bör vara vänsterjusterade
+- **Etiketter och underrubriker** kan vara <div style="text-align: center;">centrerade</div> eller <div style="text-align: right;">högerjusterade</div>
+- **Roterar inte** din text
+- **Typsnitt** bör passa kontext och ämne
+  - Några bra typsnitt är Montserrat, Lato, Roboto, Open Sans
+  - Använd några, inte många
+- **Hierarki i text** kan visualiseras med storlek, färg, fetstil
+  - Var konsekvent!
+
+## tidytuesday 2020
+
+![](images/penguinplot.png){width="30%"}
+
+## Ytterligare resurser för visualisering
+
+-   **400 exempel med kod**:
+    -   [R-graph gallery](https://r-graph-gallery.com/)\
+-   **Skapare av R-grafer**:
+    -   [Cedric Scherer](https://cedricscherer.netlify.app)\
+    -   [Georgios Karamanis](https://karaman.is/)\
+    -   [Thomas Pedersen](https://www.data-imaginist.com)\
+-   **ggplot2 bok**
+    - [ggplot2-book.org](https://ggplot2-book.org/)
+-   **Konceptuellt om datavisualisering**:
+    -   [Wilke, Claus O. (2019). *Fundamentals of Data Visualization: A Primer on Making Informative and Compelling Figures*. O’Reilly Media.](https://clauswilke.com/dataviz/)\
+    -   [Se video här](https://youtu.be/tnikYc0O0-o?si=S19op-pJFKcyGEqm)\
+    -   [Webbsida](https://data.europa.eu/apps/data-visualisation-guide/)\
+-   **Non R viz websites for inspiration**
+    -   [data-to-viz.com](data-to-viz.com)
+    -   [datavizproject.com](datavizproject.com)
+    -   [visualizationuniverse.com/](visualizationuniverse.com/charts)
+-   **Colors**
+    -   [projects.susielu.com/viz-palette](projects.susielu.com/viz-palette)
+    -   [blog.datawrapper.de/beautifulcolors](https://blog.datawrapper.de/beautifulcolors/)
+

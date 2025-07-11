@@ -1,0 +1,575 @@
+---
+title: "Tidyverse verb"
+subtitle: "R: Från datahantering till visualisering"
+---
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library(quartomonothemer)
+library(showtext)
+
+showtext_auto()
+
+
+```
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library()
+library(DT)
+
+options(
+  DT.options = list(
+    pageLength = 6,
+    lengthMenu = list(c(6, 10, 15, 20, 50, -1), c('6', '10', '15', '20', '50', 'All')),
+    initComplete = JS(
+      "function(settings, json) {",
+      ##// Style the table header cells
+      "$(this.api().table().header()).css({'background-color': 'white', 'color': 'black'});",
+      "$(this.api().table().header()).find('th').css({'background-color': 'white', 'color': 'black', 'font-weight': 'bold'});",
+      ##// Style the table body
+      "$(this.api().table().body()).css({'background-color': 'white', 'color': 'black'});",
+      ##// Style the search input
+      "$('div.dataTables_filter input').css({'background-color': 'white', 'color': 'black'});",
+      ##// Style the length menu select box
+      "$('div.dataTables_length select').css({'background-color': 'white', 'color': 'black'});",
+     ## // Style pagination buttons
+      "$('.paginate_button').css({'background-color': 'white', 'color': 'black'});",
+     ## // Remove any existing background colors from header cells
+      "$('th').removeClass('sorting');",
+      "}"
+    )
+  )
+)
+
+```
+
+
+
+## Datatransformation kan grupperas på olika sätt:
+
+::: incremental
+-   Omforma vs reducera data 
+-   Radvisa, kolumnvisa, grupp och tabell operationer
+:::
+
+## Omforma data
+
+::: incremental
+-   Ändra formen på data utan att förändra data\
+-   Går att gå fram och tillbaka mellan omformad och icke omfromad data\
+-   Exempelvis olika data strukturer med samma data: en `data frame` vs en `tibble` vs en `lista`\
+-   Format på data är viktigt för att data ska fungera med vissa funktionen\
+:::
+
+## Reducera data
+
+::: incremental
+-   Involverar att ändra data genom att minska mängden information.\
+-   Både struktur och innehåll förändras.\
+-   Går vanligtvis inte att skapa det gamla datasetetet från reducerad data\
+-   Exempel: Filtrera bort vissa rader eller sammanfatta data.\
+:::
+
+## Tidyverse
+
+Tidyverse är ett samlingsnamn på flera paket som ofta används tillsammans för datahantering, analys och visualisering i R. De centrala paketen i Tidyverse är 	
+
+-	ggplot2 (visualisering)
+
+-	dplyr (datahantering och transformation)
+
+-	tidyr (omformning av dataformat)
+
+-	readr (import av datafiler)
+
+-	tibble (tabelldata i ett modernare format)
+
+-	stringr (hantering av textsträngar)
+
+-	forcats (faktorer/kategorivariabler)
+
+-	lubridate (datum- och tidshantering)
+
+
+
+## Pipe 
+
+::: {layout-ncol="2"}
+- En pipe tar ditt dataset eller värde och skickar iväg det till nästa funktion
+
+- Läses som "och sedan"
+
+- Finns två olika pipes, den som kom först var `%>%`, magritter pipe
+
+- Den nya kom med R 4.1, `|>` 
+
+- De fungerar allra oftast exakt likadant. 
+
+
+![](https://ychef.files.bbci.co.uk/976x549/p05q6l4m.jpg)
+
+:::
+
+## dplyr
+
+::: incremental
+-   En del av tidyverse-paketet. Som namnet antyder är dplyr ett verktyg (tång) för att behandla data.
+
+-   Går att kalla med hjälp av `library(dplyr)` eller `library(tidyverse)` efter att paketet/en är installerad.
+
+-   “Grammar of data manipulation”
+:::
+
+![](images/dplyr_dplyr.png){width="45%"}
+
+## Vanligaste dplyr funktionerna
+
+| **Funktion** | **Beskrivning**                                     | **Typ**                                                   | **Orientering**                       |
+|--------------|-----------------------------------------------------|-----------------------------------------------------------|---------------------------------------|
+| `arrange()`  | Sorterar rader efter en eller flera variabler.      | <span style="color:purple">Omformar</span>               | <span style="color:green">Radvis</span>  |
+| `filter()`   | Filtrerar rader baserat på logiska villkor.         | <span style="color:red">Reducerar</span>                 | <span style="color:green">Radvis</span>  |
+| `slice()`    | Väljer rader baserat på radnummer.                  | <span style="color:red">Reducerar</span>                 | <span style="color:green">Radvis</span>  |
+| `select()`   | Väljer och ordnar om kolumner.                      | <span style="color:purple">Omformar</span>               | <span style="color:blue">Kolumnvis</span> |
+| `mutate()`   | Skapar nya variabler.                               | <span style="color:purple">Omformar</span>               | <span style="color:blue">Kolumnvis</span> |
+| `summarise()`| Sammanfattar data till ett värde per grupp.         | <span style="color:red">Reducerar</span>                 | <span style="color:green">Radvis</span>  |
+| `group_by()` | Grupperar data för aggregering.                     | <span style="color:brown">Omformar & Reducerar</span>     | <span style="color:orange">grupp</span>    |
+| `ungroup()`  | Tar bort gruppering.                                | <span style="color:brown">Omformar & Reducerar</span>     | <span style="color:green">Radvis</span>  |
+| `rename()`   | Byter namn på kolumner.                             | <span style="color:purple">Omformar</span>               | <span style="color:blue">Kolumnvis</span> |
+
+
+
+## arrange()
+::: {layout-ncol="2"}
+- Arrange sorterar data i den ordning du vill ha den
+
+- Så länge det är ascending eller descending
+
+
+![](images/clipboard-857736764.png){width="90%"}
+:::
+
+
+## arrange()
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+penguins 
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+penguins |>   
+  arrange(body_mass_g)
+```
+:::
+:::::
+
+```{r}
+penguins |>   
+  arrange(desc(body_mass_g))
+```
+
+## filter()
+
+:::: panel-tabset
+## ==
+
+::: incremental
+```{r eval=FALSE}
+penguins |>   
+  filter(species == "Gentoo")
+```
+
+![](../images/filter-1714433533.gif){fig-align="center" width="60%"}
+:::
+
+## \>
+
+```{r}
+
+
+
+penguins |> 
+  filter(body_mass_g > 4000) |>  
+DT::datatable()
+```
+
+## , or &
+
+Filtrera rader som inte är lika med Gentoo och inte är större eller lika med 4000 g.
+
+```{r}
+penguins |> 
+  filter(species != "Gentoo", body_mass_g >= 4000) |>  
+DT::datatable()
+```
+
+## \|
+
+```{r}
+penguins |> 
+ filter(species == "Chinstrap" | island == "Dream") |>  
+DT::datatable()
+```
+
+## \| &
+
+```{r}
+penguins |> 
+ filter((species == "Gentoo" & body_mass_g == 5000) | (species == "Adelie" & body_mass_g == 4250)) |>  
+DT::datatable()
+```
+
+## na
+
+```{r}
+ penguins |> 
+  filter(is.na(sex)) |>  
+DT::datatable()
+```
+
+## between
+
+```{r}
+penguins |> 
+  filter(body_mass_g >= 4000, body_mass_g < 4250, ) |>  
+DT::datatable()
+```
+
+## 
+::::
+
+## slice()
+
+:::: panel-tabset
+
+## slice()
+
+
+```{r eval=FALSE}
+# Väljer rader 1 till 5
+penguins |> 
+  slice(1:5)
+```
+
+
+## slice_head()
+```{r}
+# Väljer de översta (n=5) raderna
+penguins |> 
+  slice_head(n = 5) |> 
+  DT::datatable()
+```
+
+## slice_tail()
+```{r}
+# Väljer de sista (n=5) raderna
+penguins |> 
+  slice_tail(n = 5) |> 
+  DT::datatable()
+```
+
+
+## slice_min()
+```{r}
+# Väljer rader med minsta body_mass_g (n=5)
+penguins |> 
+  slice_min(body_mass_g, n = 5) |> 
+  DT::datatable()
+```
+
+## slice_max()
+```{r}
+# Väljer rader med största body_mass_g (n=5)
+penguins |> 
+  slice_max(body_mass_g, n = 5) |> 
+  DT::datatable()
+```
+
+## slice_sample()
+```{r}
+# Slumpmässigt urval av n=5 rader
+penguins |> 
+  slice_sample(n = 5) |> 
+  DT::datatable()
+```
+
+
+:::
+
+
+## select()
+
+::: panel-tabset
+## select
+
+![](images/select.gif)
+
+## position
+
+```{r}
+penguins |>  
+  select(5, 1) 
+```
+
+## : to
+
+```{r}
+penguins |>  
+  select(1:3, body_mass_g:year) 
+```
+
+## everything()
+
+```{r}
+penguins |>  
+  select(year, everything()) 
+```
+
+## starts_with()
+
+helper functions: starts_with(), contains(), matches(), ends_with()
+
+```{r}
+penguins |> 
+  select(starts_with("s")) 
+```
+
+## where()
+
+```{r}
+penguins |>  
+  select(where(is.numeric)) 
+```
+:::
+
+## mutate()
+
+::: panel-tabset
+## Ny variabel
+
+```{r eval=FALSE}
+penguins |>  
+  mutate(body_mass_kg = body_mass_g / 1000) |>  
+  select(body_mass_kg, body_mass_g)
+```
+
+![](images/mutate-01.gif)
+
+## mean()
+
+```{r}
+penguins |>  
+  mutate(body_mass_diff = body_mass_g - mean(body_mass_g, na.rm = TRUE)) |>  
+  select(body_mass_g, body_mass_diff)
+```
+
+## row_number()
+
+```{r}
+penguins |> 
+  mutate(row_id = row_number()) |>  
+  select(row_id, 1:3)
+```
+
+## Mutate multiple variables
+
+```{r}
+penguins |> 
+  mutate(across(where(is.numeric), scale))
+```
+
+## if_else()
+
+```{r}
+penguins |> 
+  mutate(size_category = if_else(body_mass_g > 4000, "Large", "Small"))
+```
+
+## case_when()
+
+```{r}
+penguins |> 
+  mutate( 
+    size_category = case_when(
+      body_mass_g < 3000 ~ "Small", 
+      body_mass_g >= 3000 & body_mass_g < 4000 ~ "Medium",
+      body_mass_g >= 4000 ~ "Large", 
+      TRUE ~ NA_character_ ) 
+    )
+```
+:::
+
+## summarise()
+
+::: panel-tabset
+## Sammanfatta data
+
+![](images/grp-summarize-00.gif){width="80%"}
+
+## En variabel
+
+```{r}
+penguins |> 
+  summarise(mean_body_mass = mean(body_mass_g, na.rm =
+TRUE))
+```
+
+## Flera variabler
+
+```{r}
+penguins |> 
+  summarise(
+    # Descriptives of bill length:
+    na_bill_length = sum(!is.na(bill_length_mm)), 
+    mean_bill_length = mean(bill_length_mm, na.rm = TRUE),
+    sd_bill_length = sd(bill_length_mm, na.rm = TRUE),
+    
+    # Descriptives of body mass:
+    n_abody_mass = sum(!is.na(body_mass_g)), 
+    mean_body_mass = mean(body_mass_g, na.rm = TRUE),
+    sd_body_mass = sd(body_mass_g, na.rm = TRUE),
+    
+    # Counts of categorical variables:
+    n_rows = n(), 
+    n_species = n_distinct(species),
+    n_islands = n_distinct(island)
+  )
+```
+
+## across()
+
+```{r}
+penguins |> 
+  summarise(across(where(is.numeric), mean, na.rm = TRUE))
+```
+
+## across()
+
+```{r}
+penguins |> 
+  summarise(across(where(is.numeric), 
+                   list(mean = \(x) mean(x, na.rm = TRUE), 
+                        sd = \(x) sd(x, na.rm = TRUE))))
+
+```
+:::
+
+## group_by() or .by and mutate()
+
+::: panel-tabset
+## Grupperade värden
+
+![](images/grp-mutate-01.gif){width="80%"}
+
+## mutate with group_by()
+
+```{r}
+penguins |> 
+  group_by(species) |>  
+  mutate(mean_body_mass = mean(body_mass_g, na.rm = TRUE)) |>  
+  ungroup() |> 
+  select(species, body_mass_g, mean_body_mass)
+```
+
+## .by
+
+```{r}
+penguins |> 
+  mutate(mean_body_mass = mean(body_mass_g, na.rm = TRUE), 
+         .by = species) |> 
+  select(species, body_mass_g, mean_body_mass)
+```
+
+## calculate z-scores within groups
+
+```{r}
+penguins |> 
+  group_by(species) |> 
+  mutate(
+    body_mass_z = (body_mass_g - mean(body_mass_g, na.rm = TRUE)) / sd(body_mass_g, na.rm = TRUE)
+    )|>  
+  ungroup() |> 
+  select(species, body_mass_g, body_mass_z)
+```
+:::
+
+## group_by summarise()
+
+::: panel-tabset
+## En variabel
+
+![](images/grp-summarize-01.gif){width="80%"}
+
+## En variabel
+
+```{r}
+penguins |> 
+  group_by(species) |> 
+  summarise(mean_body_mass = mean(body_mass_g, na.rm = TRUE)) |> 
+  ungroup()
+```
+
+## Flera variabler
+
+![](images/grp-summarize-02.gif){width="80%"}
+
+## Flera variabler
+
+```{r}
+penguins |> 
+  group_by(species) |>  
+  summarise( 
+    mean_body_mass = mean(body_mass_g, na.rm = TRUE), 
+    sd_body_mass = sd(body_mass_g, na.rm = TRUE)
+    ) |> 
+  ungroup()
+  
+```
+
+## Flera Grupperande variabler
+
+![](images/grp-summarize-03.gif){width="80%"}
+
+## Flera grupperande variabler
+
+```{r}
+penguins|>  
+    summarise(mean_body_mass = mean(body_mass_g, na.rm = TRUE), 
+              .by = c(species, island))
+  
+```
+:::
+
+## Pipea många funktioner
+
+```{r}
+
+penguins |> 
+  select(species:sex) |> 
+  filter(sex == "female", bill_length_mm > 34) |> 
+  mutate(Sex = case_when(island == "Torgersen" ~ "Male",
+                         TRUE ~ "Female")) |> 
+  ggplot(aes(island, bill_length_mm, color = Sex)) + 
+  geom_violin() +
+  geom_point(position = position_jitter(.2), shape = 5) +
+  theme_minimal(base_size = 25) +
+  theme(panel.grid.minor = element_blank())
+
+
+```
+
+
+
+## Mer info
+
+-   \[[style.tidyverse.org](https://style.tidyverse.org/)\](<https://style.tidyverse.org/>)

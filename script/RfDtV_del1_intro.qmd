@@ -1,0 +1,235 @@
+---
+title: "Introduktion till R"
+subtitle: "R: Från datahantering till visualisering"
+---
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library(quartomonothemer)
+library(showtext)
+
+showtext_auto()
+
+style_mono_quarto(
+  font_title = "Josefin Sans",        # Sets the font style for slide titles.
+  font_text = "Roboto",              # Specifies the font for the main body text.
+  font_code = "Fira Code",
+  font_sans = "Noto Sans",           # Defines a fallback sans-serif font for compatibility.
+  color_base = "#3a5137",            # Sets the primary base color for slides, often used for headings or backgrounds.
+  color_accent = "#795b7e",          # Accent color used for highlights, such as borders or key points.
+  color_link = "#ebc34c",            # Color applied to hyperlinks on the slides.
+  color_code = "#e1800f",            # Color for inline code and code blocks. #e1800f , f39726
+  color_bg = "#ffffff",
+  size_base = 30,                    # Base font size for the slides, affecting readability.
+  google_fonts = c("Roboto", "Roboto Condensed", "Josefin Sans", "Noto Sans"), # Specifies the Google Fonts to be downloaded and used in the slides.
+  table_engine = "gt",
+  path_scss = "quartomonothemer.scss" # Path to the SCSS file where additional theming customization can be applied.
+)
+```
+
+## Historien om R
+
+::: incremental
+-   **R** grundades på 1990-talet av **Ross Ihaka** och **Robert Gentleman** vid University of Auckland, Nya Zeeland.
+    -   Inspirerat av språk som **S**, som utvecklades på Bell Labs.
+    -   **1995**: R släpptes som en fri mjukvara under GNU General Public License.
+    -   **1997**: CRAN (Comprehensive R Archive Network) grundades, vilket gjorde det enklare att dela och ladda ner R-paket. Vid skrivandets stund fanns det `21,192`, testa att köra funktionen: `nrow(available.packages())` för att se hur många det är nu på [CRAN](https://cran.r-project.org)
+    -   **2000**: Första officiella versionen av R (1.0.0) släpptes. Basfunktionaliteten stödde statistisk analys men hade en brant inlärningskurva.
+:::
+
+## Historien om R
+
+::: incremental
+-   **2000-talet: Tidiga framsteg och grundläggande funktionalitet**
+    -   **2004**: `lattice` introducerades för avancerad datavisualisering.
+    -   **2005**: `ggplot2` utvecklades av Hadley Wickham.
+    -   **2008**: Fler paket började utvecklas för att hantera stora datamängder och komplex analys.
+-   **2010–2015: Expansion och användarvänlighet**
+    -   **2010**:
+        -   **RStudio** lanserades som en användarvänlig IDE för R.
+        -   `plyr` introducerades för effektivare datamanipulation.
+    -   **2011**: `data.table` blev populärt för sin snabbhet och hantering av stora datamängder.
+    -   **2014**:
+        -   `dplyr` ersatte `plyr` och gjorde datamanipulation enklare och mer intuitiv.
+        -   `RMarkdown` introducerades för att integrera kod, text och resultat i samma dokument.
+        -   `Magrittr-pipen (%>%)`, som är en del av magrittr-paketet, introducerades 2014 av Stefan Milton Bache. Det blev snabbt populärt tack vare sin förmåga att förbättra läsbarheten och flödet i R-kod genom att möjliggöra kedjning av funktioner utan att använda nästlad syntax.
+    -   **2015**: `readr` och `tidyr` förbättrade import och rengöring av data, ggplot 2.0 med möjlighet för andra utvecklare att skapa egna ggplot funktioner.
+:::
+
+## Historien om R
+
+::: incremental
+-   **2016–2020: R för modern dataanalys**
+    -   **2016**:
+        -   `tidyverse`-metapaketet lanserades, vilket samlade viktiga paket för dataanalys (t.ex. `ggplot2`, `dplyr`, `tidyr`).
+        -   `caret` blev standard för maskininlärning i R.
+    -   **2017**:
+        -   `sf` moderniserade hantering av geografiska data.
+        -   `reticulate` möjliggjorde integration med Python.
+    -   **2018**: `shiny` blev ett populärt verktyg för att bygga interaktiva webbapplikationer och dashboards.
+    -   **2019**:
+        -   `tidymodels` lanserades för enhetliga och "tidi-fierade" maskininlärningsarbetsflöden.
+:::
+
+## Historien om R
+
+::: incremental
+-   **2021–Idag: Modernisering och tillgänglighet**
+    -   **2021**:
+        -   Införandet av native pipe (`|>`) gjorde syntaxen renare och lättare för nybörjare.
+        -   Cloud-integration och containerlösningar som Docker gjorde R mer skalbart.
+    -   **2022**:
+        -   **Quarto** lanserades som ett flexibelt verktyg för kod, rapportskrivning och dokumentation i ett dokument.
+        -   Förbättringar i RStudio (nu Posit) inkluderade stöd för samarbete och molnbaserade arbetsflöden.
+    -   **2023**:
+        -   Optimering av många funktioner gjorde analys snabbare och mer effektiv.
+        -   Språket blev enklare att lära sig tack vare stora språkmodeller (LLLM, Large Language Learning Models).
+    -   **2024**:
+        -   **Positron**, en ny IDE som stöder flera programmeringsspråk, lanserades.
+        -   Nya R-paket fortsätter att släppas dagligen, vilket gör arbetsflöden mer användarvänliga och anpassade till specifika behov.
+:::
+
+## Funktioner över tid
+
+![probability that a GitHub repository used a specific function. Functions are coloured based on their category (base, blue; tidyverse, red; other, grey). See for article: [**https://doi.org/10.1098/rsos.221550**](https://doi.org/10.1098/rsos.221550)](images/history.jpg){width="90%"}
+
+## Varför ett kodspråk såsom R
+
+**(Jämfört med excel och andra mindre avancerade statistiska programvaror)**
+
+. . .
+
+::: incremental
+Till exempel:\
+- Gratis (open source)\
+- Stor comunity\
+
+-   Det är reproducerbart,\
+    -   Du kan se vad du gjort tidigare.\
+    -   Andra kan läsa vad du har gjort\
+    -   Du kan skriva dokumentation i samma fil där koden finns (Quarto)\
+-   "Data literacy", förståelse för dataprocessen och arbetsflödet.\
+:::
+
+## Utöver att lära sig koda
+
+::: incremental
+-   **Utöver själva kodningen**
+    -   Problemlösning
+    -   Kreativt tänkande
+    -   Kritiskt tänkande
+-   **Förståelse**
+    -   Data
+    -   Statistik
+    -   Visualisering
+    -   Datahantering
+    -   Datakvalitet
+    -   Dataanalys
+    -   Datakällor
+    -   Dataformat
+    -   Datastrukturer
+:::
+
+## R och R studio
+
+::: incremental
+-   Jag antar ni redan har\
+    -   [installerat R](https://cloud.r-project.org/)\
+    -   [installerat Rstudio](https://posit.co/download/rstudio-desktop/)\
+
+<br>
+
+Pro tip - Försök ha R och Rstudio någorlunda uppdaterade\
+:::
+
+## Setup
+
+Tools -\> Global options -\> General -\> Basic -\> Workspace
+
+![](images/clipboard-305658588.png){width="40%"}
+
+## Output fönster
+
+Tools -\> Global options -\> General -\> R Markdown
+
+![](images/clipboard-3391083287.png){width="40%"}
+
+## Andra alternativ
+
+::: incremental
+-   Färgade paranteser.
+-   Teman och färger.
+-   Fonts
+-   Antialiasing (för windows) - Bättre kvalite på figurerna som visas i Rstudio.
+-   Pane layout/fönster layout.
+-   Scrolla förbi slutet av dokumentet.
+-   etc.
+:::
+
+## Starta ett R-projekt!
+
+::: incremental
+1.  **Öppna RStudio** och klicka på:\
+    **`File > New Project`**.
+2.  Välj alternativ:
+    -   **`New Directory`** för att skapa en ny mapp.\
+    -   **`Existing Directory`** om du redan har en mapp för projektet.\
+3.  Sätt ett namn och välj en plats där projektet ska sparas.\
+4.  Klicka på **`Create Project`**. Nu har du ett R-projekt redo att användas!
+:::
+
+## Varför använda R-projekt?
+
+::: incremental
+-   **Organiserad arbetsyta**: Alla filer (kod, data, resultat) sparas i en och samma projektmapp.\
+-   **Relativa filvägar**: Istället för att ange långa sökvägar till filer (t.ex., `C:/Users/...`) som är specifika för datorn du arbetar från, kan du använda `here::here()`.\
+-   **Reproducerbarhet**: Andra som öppnar projektet ser samma struktur och kan lätt följa dina analyser.\
+-   **Integration med Git**: Enklare versionshantering och samarbete.\
+    -   [Se här för mer om detta: happygitwithr.com](https://happygitwithr.com/)\
+-   **Säkerhet**: Undviker att av misstag arbeta i fel mapp eller skriva över viktiga filer.
+-   Om ni har flera datorer så kommer eller filsökvägar fungera på båda om projektet är i ett moln.
+:::
+
+## Tips för att arbeta i ett R-projekt
+
+::: incremental
+-   Lägg till en **README-fil** för att förklara projektets syfte.\
+-   Använd **paketet `here`** för att arbeta med filvägar.\
+-   Håll mappstrukturen tydlig, tex:
+    -   `data/` för rådata.
+    -   `scripts/` för R-kod.
+    -   `outputs/` för resultat.
+:::
+
+## Viktiga kortkommandon
+
+`"Tools" > "Keyboard Shortcuts Help"` för att se shortcuts, alt opt + Shift + k
+
+::: incremental
+-   `Ctrl/Cmd+Enter:` Kör den aktuella raden eller markeringen.
+
+-   `Ctrl/Cmd+Shift+C:` Kommentera/avkommentera den aktuella raden eller markeringen.
+
+-   `Ctrl/Cmd+Shift + m`: %\>% \|\>
+
+-   `Ctrl/Cmd+Alt+I:` Skapa en chunk.
+:::
+
+```{{r}}
+# Detta är en kodchunk
+```
+
+## Målbild
+
+![](images/goalimage.png){width="80%"}
+
+## Det som ligger bakom bilden
+
+-   Förstå Rstudio
+-   Quarto\
+-   Import av data\
+-   Klasser\
+-   Objekt\
+-   Funktioner

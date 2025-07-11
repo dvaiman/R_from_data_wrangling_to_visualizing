@@ -1,0 +1,304 @@
+---
+title: "Tabeller"
+subtitle: "R: Från datahantering till visualisering"
+title-block-banner: "#870052"
+title-block-banner-color: "#FFFFFF"
+# title-slide-attributes:
+#  data-background-iframe: "./particles/title-block.html"
+  
+author: 
+  name: Daniel Väisänen, PhD
+  affiliation: GIH Swedish School of Sport and Health Scienses
+  affiliation-url: https://gih.se
+  orcid: 0000-0002-0958-0094
+#date: 2024-09-12
+#date-format: YYYY-MM-DD  
+
+editor_options:
+  markdown:
+    wrap: 72
+    references: 
+      location: block
+    canonical: true
+
+format: 
+  revealjs:
+    theme: [default, quartomonothemer.scss]
+    chalkboard: false
+#    template-partials: 
+#      - ../particles/title-block.html
+    hash-type: number
+    transition: fade
+    auto-stretch: false
+    self-contained: true
+#    slide-level: 2
+    scrollable: true
+    smaller: true
+    center: false
+    preload-iframes: true
+    height: 900
+    width: 1600
+ #   logo: https://www.gih.se/images/18.30b8365c181b292c86be/1656568127187/gih-logotype.svg
+ #   footer: <a href="https://gih.se"> GIH </a> • [@danielvaisanen](https://twitter.com/danielvaisanen)
+    slide-number: c/t
+    
+execute:
+  echo: true         # Show the code chunks in the final output.
+  warning: false     # Suppress any warning messages.
+  message: false     # Suppress general messages.
+  cache: false       # Do not cache the results; re-execute code every time.
+  df-print: kable    # Print style of tables
+  css: style.css
+#editor_options: 
+#  chunk_output_type: console
+---
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library(quartomonothemer)
+library(showtext)
+
+showtext_auto()
+
+style_mono_quarto(
+  font_title = "Josefin Sans",        # Sets the font style for slide titles.
+  font_text = "Roboto",              # Specifies the font for the main body text.
+  font_code = "Fira Code",
+  font_sans = "Noto Sans",           # Defines a fallback sans-serif font for compatibility.
+  color_base = "#2a6a6d",            # Sets the primary base color for slides, often used for headings or backgrounds.
+  color_accent = "#95DFD6",          # Accent color used for highlights, such as borders or key points.
+  color_link = "#ebc34c",            # Color applied to hyperlinks on the slides.
+  color_code = "#e1800f",            # Color for inline code and code blocks. #e1800f , f39726
+  color_bg = "#ffffff",
+  size_base = 30,                    # Base font size for the slides, affecting readability.
+  google_fonts = c("Roboto", "Roboto Condensed", "Josefin Sans", "Noto Sans"), # Specifies the Google Fonts to be downloaded and used in the slides.
+  table_engine = "gt",
+  path_scss = "quartomonothemer.scss" # Path to the SCSS file where additional theming customization can be applied.
+)
+```
+
+```{r}
+#| echo: false
+library(tidyverse)
+library(gtsummary)
+library(palmerpenguins)
+library(forcats)
+```
+
+::: incremental
+Att skapa modeller/deskriptiv statistik och sedan klippa och klistra in
+detta in i en word tabell är som att be om felaktigheter som är
+svårspårade.
+
+Det finns olika sätt att skapa tabeller:\
+- Det går att klipppa och klistra...\
+- Det går att använda tidyverse tillsammans med glue för att bearbeta
+data i rätt format - Kan vara tidskrävande och svårt att få i rätt
+format.
+
+Men det finns effektivare sätt\
+- använda ett table package
+:::
+
+## tabell paket
+
+::: incremental
+-   tinytable
+-   flextable
+-   kable
+-   kableExtra
+-   DT
+-   GT (från Posit)
+-   gtsummary (Daniel Sjoberg)
+:::
+
+## Med tidyverse och glue
+
+Här en table 1
+
+```{r}
+
+# Preprocess: add Unknown to missing factor levels
+penguins_processed <- penguins %>%
+  mutate(
+    species = fct_explicit_na(species, na_level = "Unknown"),
+    sex = fct_explicit_na(sex, na_level = "Unknown"),
+    island = fct_explicit_na(island, na_level = "Unknown")
+  )
+
+# Define variables
+continuous_vars <- c("bill_length_mm", "flipper_length_mm")
+continuous_labels <- c("Bill Length (mm)", "Flipper Length (mm)")
+categorical_vars <- c("island", "sex")
+categorical_labels <- c("Island", "Sex")
+
+# Summarize continuous variables by species to get mean and sd
+cont_summary <- penguins_processed %>%
+  group_by(species) %>%
+  summarize(
+    bill_length_mean = mean(bill_length_mm, na.rm = TRUE),
+    bill_length_sd = sd(bill_length_mm, na.rm = TRUE),
+    bill_length_missing = sum(is.na(bill_length_mm)),
+    flipper_length_mean = mean(flipper_length_mm, na.rm = TRUE),
+    flipper_length_sd = sd(flipper_length_mm, na.rm = TRUE),
+    flipper_length_missing = sum(is.na(flipper_length_mm)),
+    n_total = n(),
+    .groups = "drop"
+  ) %>%
+  # Convert to a long format with rows for "Mean (SD)" and "Missing"
+  pivot_longer(
+    cols = c(bill_length_mean, bill_length_sd, bill_length_missing,
+             flipper_length_mean, flipper_length_sd, flipper_length_missing),
+    names_to = c("var", "stat"),
+    names_pattern = "(.*)_(mean|sd|missing)$",
+    values_to = "value"
+  ) %>%
+  pivot_wider(
+    names_from = stat,
+    values_from = value
+  ) %>%
+  mutate(
+    Variable = if_else(var == "bill_length", continuous_labels[1], continuous_labels[2]),
+    # Create two types of rows: one for Mean (SD) and one for Missing
+    RowType = case_when(
+      !is.na(mean) & !is.na(sd) ~ "Mean (SD)",
+      is.na(mean) & is.na(sd) ~ "Missing"
+    ),
+    Value = case_when(
+      RowType == "Mean (SD)" ~ paste0(round(mean,2), " (", round(sd,2), ")"),
+      RowType == "Missing" ~ paste0(missing, " (", round(missing/n_total*100,1), "%)")
+    )
+  ) %>%
+  select(species, Variable, RowType, Value)
+
+# Summarize categorical variables by species
+cat_summary <- penguins_processed %>%
+  # Count categories for each categorical variable
+  select(species, all_of(categorical_vars)) %>%
+  pivot_longer(cols = all_of(categorical_vars), names_to = "var", values_to = "cat") %>%
+  group_by(var, species, cat) %>%
+  summarize(n = n(), .groups = "drop") %>%
+  group_by(var, species) %>%
+  mutate(percent = round(n/sum(n)*100,1)) %>%
+  ungroup() %>%
+  # Attach labels
+  mutate(
+    Variable = case_when(
+      var == "island" ~ categorical_labels[1],
+      var == "sex" ~ categorical_labels[2]
+    ),
+    RowType = cat,  # each category becomes a row
+    Value = paste0(n, " (", percent, "%)")
+  ) %>%
+  select(species, Variable, RowType, Value)
+
+# Combine continuous and categorical summaries
+species_summary <- bind_rows(cont_summary, cat_summary)
+
+# Create total summary for continuous variables
+total_cont <- penguins_processed %>%
+  summarize(
+    bill_length_mean = mean(bill_length_mm, na.rm = TRUE),
+    bill_length_sd = sd(bill_length_mm, na.rm = TRUE),
+    bill_length_missing = sum(is.na(bill_length_mm)),
+    flipper_length_mean = mean(flipper_length_mm, na.rm = TRUE),
+    flipper_length_sd = sd(flipper_length_mm, na.rm = TRUE),
+    flipper_length_missing = sum(is.na(flipper_length_mm)),
+    n_total = n()
+  ) %>%
+  pivot_longer(
+    cols = starts_with("bill_length_") | starts_with("flipper_length_"),
+    names_to = c("var", "stat"),
+    names_pattern = "(.*)_(mean|sd|missing)$",
+    values_to = "value"
+  ) %>%
+  pivot_wider(
+    names_from = stat,
+    values_from = value
+  ) %>%
+  mutate(
+    species = "Total",
+    Variable = if_else(var == "bill_length", continuous_labels[1], continuous_labels[2]),
+    RowType = case_when(
+      !is.na(mean) & !is.na(sd) ~ "Mean (SD)",
+      is.na(mean) & is.na(sd) ~ "Missing"
+    ),
+    Value = case_when(
+      RowType == "Mean (SD)" ~ paste0(round(mean,2), " (", round(sd,2), ")"),
+      RowType == "Missing" ~ paste0(missing, " (", round(missing/n_total*100,1), "%)")
+    )
+  ) %>%
+  select(species, Variable, RowType, Value)
+
+# Create total summary for categorical variables
+total_cat <- penguins_processed %>%
+  select(all_of(categorical_vars)) %>%
+  pivot_longer(cols = all_of(categorical_vars), names_to = "var", values_to = "cat") %>%
+  group_by(var, cat) %>%
+  summarize(n = n(), .groups = "drop") %>%
+  group_by(var) %>%
+  mutate(percent = round(n/sum(n)*100,1)) %>%
+  ungroup() %>%
+  mutate(
+    species = "Total",
+    Variable = case_when(
+      var == "island" ~ categorical_labels[1],
+      var == "sex" ~ categorical_labels[2]
+    ),
+    RowType = cat,
+    Value = paste0(n, " (", percent, "%)")
+  ) %>%
+  select(species, Variable, RowType, Value)
+
+total_summary <- bind_rows(total_cont, total_cat)
+
+# Combine species-level and total summaries
+final <- bind_rows(species_summary, total_summary)
+
+# Pivot to have species as columns
+table1 <- final %>%
+  unite("Var_Row", Variable, RowType, sep = ": ", remove = FALSE) %>%
+  pivot_wider(
+    names_from = species,
+    values_from = Value
+  ) %>%
+  arrange(Variable)
+
+table1 |> select(!c(Variable, RowType))
+```
+
+## Med gtsummary
+
+-   Kod för en snyggare tabell med gtsummary paketet
+
+```{r}
+#| code-line-numbers: "1|2|3|4|5,6,7,8|9,10,11,12|13|14"
+
+library(gtsummary)
+
+gtsummary_table <- penguins %>%
+  tbl_summary(by = species, 
+              statistic = list(
+                all_continuous() ~ "{mean} ({sd})",
+                all_categorical() ~ "{n} ({p}%)"
+              ),
+              label = list(
+                bill_length_mm ~ "Bill Length (mm)",
+                flipper_length_mm ~ "Flipper Length (mm)"
+              )) %>%
+  add_overall() %>%
+  add_p()
+
+gtsummary_table
+```
+
+## Output format
+
+![](images/gt_output_formats.png){width="70%"}
+
+## Mer info
+
+[Mer info och videos på gtsummarys hemsida:
+www.danieldsjoberg.com/gtsummary](https://www.danieldsjoberg.com/gtsummary/index.html)

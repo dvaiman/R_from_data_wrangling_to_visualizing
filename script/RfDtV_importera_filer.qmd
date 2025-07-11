@@ -1,0 +1,255 @@
+---
+title: "Importera och exportera data"
+subtitle: "R: Från datahantering till visualisering"
+
+---
+
+
+
+## Importera data i R
+
+-   importera genom att klicka
+-   importera med bas R
+-   importera med readr (tidyverse)
+-   importera olika datatyper
+-   setwd()?
+-   here paketet
+
+## Importera genom att klicka
+
+-   I RStudio kan du använda det grafiska gränssnittet för att importera
+    data:
+
+    -   Gå till: **File \> Import Dataset**
+    -   Välj datatyp, t.ex. CSV eller Excel.
+    -   Följ guiden, och RStudio genererar kod för att läsa in datan.
+    -   Du kan antingen kopiera koden till ditt script eller låta datorn
+        importera det åt dig.
+    -   Du får även en preview av data som kan vara hjälpsam
+    -   Exempel på genererad kod:
+
+    ``` r
+    data <- read.csv("path_to_your_file.csv")
+    ```
+
+------------------------------------------------------------------------
+
+## Importera med Bas R
+
+-   Bas R har inbyggda funktioner för att läsa in filer som CSV och txt
+    filer:
+
+``` r
+data_base <- read.csv("data/your_file.csv", header = TRUE)
+head(data_base)
+```
+
+-   Fördelar:
+    -   Inbyggt, inget extra paket krävs.
+-   Nackdelar:
+    -   Mindre flexibelt och långsammare för större filer.
+
+------------------------------------------------------------------------
+
+## Importera med readr (Tidyverse)
+
+-   Tidyverse erbjuder snabba och flexibla funktioner via
+    `readr`-paketet:
+
+``` r
+library(readr)
+data_tidy <- read_csv("data/your_file.csv")
+```
+
+-   Fördelar:
+    -   Snabbare och mer intuitivt.
+    -   Returnerar tibbles istället för data.frames.
+    -   Automatisk igenkänning av datatyper.
+
+------------------------------------------------------------------------
+
+## Importera olika datatyper
+
+-   För Excel-filer:
+
+``` r
+  library(readxl)
+  data_excel <- read_excel("data/your_file.xlsx", sheet = 1)
+```
+
+-   För SPSS-, Stata- eller SAS-filer:
+
+``` r
+library(haven)
+data_spss <- read_spss("data/your_file.sav")
+```
+
+-   För textfiler (här tabseparerad textfil):
+
+``` r
+library(readr)
+data_txt <- read_tsv("data/your_file.txt")
+```
+
+------------------------------------------------------------------------
+
+## Undvik setwd()
+
+-   Funktionen `setwd()` används för att sätta arbetsmappen i R:
+
+``` r
+setwd("C:/path_to_your_directory")
+data <- read.csv("your_file.csv")
+```
+
+-   Varför ska man undvika setwd()?
+    -   **Fragilt**: Fungerar bara i en specifik mapp.
+    -   **Svårt att underhålla**: Om du byter namn på eller flyttar
+        mappen slutar koden fungera.
+    -   **Ej portabelt**: Om du får en ny dator eller någon annan ska
+        köra koden behöver sökvägen ändras.
+
+## Importera med here-paketet
+
+-   Istället för att använda setwd(), använd `here` för att hantera
+    filvägar.
+-   Exempel:
+
+``` r
+library(here)
+data_here <- read_csv(here("data", "your_file.csv"))
+```
+
+-   Fördelar:
+    -   Filvägar är lätta att läsa och reproducerbara, robust.
+    -   Bättre integrerat med RStudio-projekt.
+    -   Projektet kan enkelt delas med andra eftersom here hanterar
+        filvägar på ett dynamiskt och anpassningsbart sätt.
+    -   Går även att backa ut ur ditt projekt med ".." tex here("..",
+        "data", "your_file.csv")
+
+## Rekommendation:
+
+1.  Skapa alltid ett R-projekt i RStudio (File \> New Project).
+2.  Använd here för att arbeta med filer på ett organiserat och säkert
+    sätt.
+3.  Använd readr paketets funktioner för text dokument.
+
+## Mer info om here: here
+
+[here: here.r-lib.org](https://here.r-lib.org/)\
+[here:
+github.com/jennybc/here_here?tab=readme-ov-file](https://github.com/jennybc/here_here?tab=readme-ov-file)
+
+## Spara data
+
+### 1. Varför spara data?
+
+-   Efter bearbetning eller analys av data är det viktigt att spara
+    resultatet:
+    -   För att undvika att göra om samma arbete.
+    -   För att dela resultaten med andra.
+    -   För att spara minne och tid vid framtida analyser.
+
+------------------------------------------------------------------------
+
+## Spara data med Bas R
+
+### Spara som CSV
+
+-   **CSV** är ett vanligt format för att dela data mellan program:
+
+    ``` r
+    write.csv(data, "data_output.csv", row.names = FALSE)
+    ```
+
+### Spara som RDS
+
+-   **RDS** är ett format som sparar R-objekt exakt som de är:
+
+    ``` r
+    saveRDS(data, "data_output.rds")
+    ```
+
+-   Fördelar med RDS:
+
+    -   Bevarar alla datatyper och attribut.
+    -   Perfekt för att spara objekt som bara används i R.
+    -   tex modeller som tar tid att utföra, så kan det vara bra att
+        spara som ett mellansteg.
+
+-   Ladda tillbaka RDS:
+
+``` r
+data <- readRDS("data_output.rds")
+```
+## here packetet för att spara
+
+``` r
+write_csv(data, here::here("data_output.csv"))
+```
+
+<br>
+
+Att använda `::` efter ett paketnamn gör att man kan kalla på en specifik funktion från paketet utan att använda `library(here)` i sitt script.
+
+------------------------------------------------------------------------
+
+## Spara data med Tidyverse
+
+### Spara som CSV med readr
+
+-   Snabbare och mer flexibelt än Base R:
+
+``` r
+library(readr)
+write_csv(data, "data_output.csv")
+```
+
+## Spara som Excel
+
+-   För att spara i Excel-format:
+
+``` r
+library(writexl)
+write_xlsx(data, "data_output.xlsx")
+```
+
+------------------------------------------------------------------------
+
+## Vilket format ska du välja?
+
+#### 1. **`CSV (Comma-Separated Values):`**
+
+-   **Fördelar:**
+    -   Stöds av nästan alla program (Excel, Python, SQL, etc.).
+    -   Lätt att läsa och skriva.
+-   **Nackdelar:**
+    -   Tappar metadata (faktorer, datumformat, etc.).
+
+#### 2. **`RDS (R Data Serialization):`**
+
+-   **Fördelar:**
+    -   Bevarar alla R-specifika funktioner (faktorer, tibbles,
+        attribut).
+-   **Nackdelar:**
+    -   Endast läsbart i R.
+    -   Kan ta mer lagringsplats
+
+#### 3. **`Excel (XLSX):`**
+
+-   **Fördelar:**
+    -   Bra för delning med andra som använder Excel.
+    -   Stöder flera ark och formatering.
+-   **Nackdelar:**
+    -   Mindre effektivt för stora dataset.
+
+------------------------------------------------------------------------
+
+## Rekommendationer
+
+-   För att dela data: **CSV** eller **Excel**.
+-   För tex vissa modelobjekt, eller för att spara formateringen i data:
+    **RDS**.
+-   Använd readr från tidyverse for snabbare sparfunktioner
+-   Använd here

@@ -1,0 +1,233 @@
+---
+title: "Joins"
+subtitle: "R: Från datahantering till visualisering"
+
+format: 
+  revealjs:
+    theme: [default, quartomonothemer_light2.scss]
+---
+
+
+
+## Joins {background-gradient="radial-gradient(#283b95, #17b2c3)"}
+
+::: incremental
+Joins är till för att sätta ihop olika dataset
+
+-   Det finns olika typer av joins
+
+    -   left_join()
+    -   right_join()
+    -   inner_join()
+    -   full_join()
+    -   semi_join()
+    -   anti_join()
+
+-   Fyra första kallas mutating joins - kombinerar variabler från olika
+    dataset
+
+-   Två sista kallas filtering joins - Filtrerar vissa rader baserat på
+    matchning
+:::
+
+## Simplistisk bild av dessa joins
+
+![Venndiagram för skillnaden mellan mutating
+joins](images/join0.png){fig-align="left" width="60%"}
+
+## Hur funkar joins
+
+-   Nyckel variabel/variabler som finns i bägge dataseten, tex ID nummer
+    eller datum
+
+-   Alla funktioner har samma interface där de tar två dataset som
+    argument och skapar ett dataset av dessa. i.e. `left_join(x,y)`.
+
+```{r}
+#| echo: false
+#| 
+library(tidyverse)
+x <- tribble(
+  ~key, ~val_x,
+     1, "x1",
+     2, "x2",
+     3, "x3"
+)
+
+y <- tribble(
+  ~key, ~val_y,
+     1, "y1",
+     2, "y2",
+     4, "y3"
+)
+```
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+
+x # datatabell 1
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+
+y # datatabell 2
+```
+:::
+:::::
+
+## left_join()
+
+![En visuell representation av en left join där varje rad i x förekommer
+i utdata](images/joinleft1.png){fig-align="left" width="60%"}
+
+## right_join()
+
+![En visuell representation av en vänsterjoin där varje rad i y
+förekommer i utdata](images/joinright1.png){fig-align="left"
+width="60%"}
+
+## inner_join()
+
+![En inner join matchar varje rad i x med den rad i y som har samma
+värde på nyckeln. Varje matchning blir en rad i
+utdata.](images/joininner1.png){fig-align="left" width="60%"}
+
+## full_join()
+
+![En full join där varje rad i x och y förekommer i
+utdata.](images/joinfull1.png){fig-align="left" width="60%"}
+
+## Vad händer om det är fler än en match per rad?
+
+Det finns tre möjliga utfall för en rad i x:
+
+• Om den inte matchar något, tas den bort.
+
+• Om den matchar en rad i y, behålls den.
+
+• Om den matchar mer än en rad i y, dupliceras den en gång för varje
+matchning.
+
+![](images/join.png){width="60%"}
+
+## Many to many
+
+```{r}
+#| echo: false
+df1 <- tibble(key = c(1, 2, 2), val_x = c("x1", "x2", "x3"))
+df2 <- tibble(key = c(1, 2, 2), val_y = c("y1", "y2", "y3"))
+```
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+df1
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+df2
+```
+:::
+:::::
+
+## Many to many
+
+```{r}
+#| code-line-numbers: "1|2|3"
+  inner_join(df1, df2)
+```
+
+## semi_join()
+
+![En semi-join spelar det bara roll att det finns en matchning; annars
+påverkar värden i y inte
+resultatet.](images/joinsemi1.png){fig-align="left" width="60%"}
+
+## anti_join()
+
+![En anti-join är motsatsen till en semi-join och tar bort rader från x
+som har en matchning i y.](images/joinanti1.png){fig-align="left"
+width="60%"}
+
+## join_by()
+
+```{r}
+#| echo: false
+# Dataset 1
+df1 <- data.frame(
+  id = c(1, 2, 3),
+  name = c("Alice", "Bob", "Charlie"),
+  score = c(85, 90, 78)
+)
+
+# Dataset 2
+df2 <- data.frame(
+  student_id = c(1, 2, 4),
+  name = c("Alice", "Bob", "David"),
+  grade = c("A", "B", "C")
+)
+```
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+
+df1 # datatabell 1
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+
+df2 # datatabell 2
+```
+:::
+:::::
+
+## join_by()
+
+```{r}
+#| incremental: true
+#| echo: true
+#| include-output: true
+#| eval: false
+
+df1 %>%
+  left_join(df2, join_by(id == student_id, name))
+
+```
+
+## join_by()
+
+```{r}
+#| incremental: true
+#| echo: true
+#| include-output: true
+#| eval: true
+
+df1 %>%
+  left_join(df2, join_by(id == student_id, name))
+
+```
+
+## Non equi joins/inte lika med joins
+
+::: incremental
+-   `Cross joins` matchar varje kombination av rader. `cross_join()`.
+    nrow(df1) \* nrow(df2).
+
+-   `Inequality joins` använder \<, \<=, \> och \>= istället för ==
+    innuti `join_by()` .
+
+-   `Rolling joins` är liknande Inequality-joins men hittar endast den
+    närmaste matchningen.
+
+-   `Overlap joins` är en speciell typ av Inequality-join som är
+    utformad för att arbeta med intervall, tex att joina data som är
+    mellan två datum.
+:::

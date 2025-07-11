@@ -1,0 +1,142 @@
+---
+title: "AI"
+subtitle: "R: Från datahantering till visualisering"
+
+---
+
+
+
+::: callout-note
+## 
+
+Det är möjligt att AI kommer att skriva all kod i framtiden. <br> Men vi
+måste fortfarande ha en viss kunskap för att veta vad vi ska be den om.
+:::
+
+## Verktyg
+
+::: incremental
+-   Microsoft Copilot
+-   GitHub Copilot - gratis för studenter och lärare
+-   ChatGPT
+-   Claude
+-   Chattr, R paket – Kan se din kod i ditt skript och vad du har i din
+    miljö.
+-   Elmer - R paket från Posit
+:::
+
+## Generella tips
+
+::: incremental
+-   Olika resultat varje gång.
+-   Ju mer du vet om något, desto lättare är det att få ett bra
+    resultat; var specifik.
+-   Behöver ofta iterera för att få det resultat man är ute efter.
+-   Be AI kommentera kod för att du ska förstå.
+-   Det kan hjälpa att dela upp ett projekt i mindre bitar.
+:::
+
+## Pröva:
+
+::: Incremental
+**Alternativ 1**
+
+Skriv R-kod som genererar ett spridningsdiagram och ett violindiagram.
+
+**Alternativ 2**
+
+Skriv R-kod som genererar ett dataset med 100 individer med åldrar från
+18 till 49, BMI-värden från 15 till 40 och rökstatus som ja eller nej.
+Anta att ålder och BMI är okorrelerade. Anta att rökare har något lägre
+BMI. Använd sedan R-paketet *patchwork* för att generera en panel med
+ggplot2-figurer Den första panelen ska visa ett violindiagram med BMI
+på y-axeln och rökstatus på x-axeln. Den andra panelen ska visa ett
+spridningsdiagram med ålder på y-axeln och BMI på x-axeln. Lägg till
+noggrann dokumentation i din kod.
+:::
+
+## Felmeddelanden och AI
+
+::: Incremental
+-   Klistra in felmeddelandet och fråga vad dessa betyder.
+-   Klistra in kod med felmeddelandet för att få mer specifik svar.
+-   Var specifik.
+-   Fråga om alternativ för att utföra samma sak.\
+-   Ibland är det bättre att själv tänka igenom sin kod för att hitta en lösning som passar dig.
+:::
+
+## Utforska data med AI
+
+::: Incremental
+-   Kan vara känsligt att ge AI tillgång till din data.
+-   Låt AI producera kod som genererar syntetiska data som ser ut som du
+    vill. Mata sedan in det till AI och be den skriva kod för att utföra
+    explorativ data analys på den syntetiska data. När du har fungerande kod kan du tillämpa
+    den på ditt riktiga dataset.
+:::
+
+## AI som en brainstormpartner
+
+::: incremental
+-   AI är effektiv för specifika uppgifter men fungerar också som en
+    sparringpartner för brainstorming.
+-   Du kan ge AI öppna frågor, t.ex. om lösningar på kodproblem, för att
+    få nya perspektiv.
+-   Sedan kan du iterera och på så sätt möjligtvis utforska ett ämne och
+    olika alternativ mycket snabbare än om du bara tänkte på det själv.
+-   Resultaten är inte alltid perfekta, men det är snabbt och ofta värt
+    att prova.
+-   Var kritisk – kontrollera informationen, den är inte alltid korrekt.
+-   Använd korta, vaga instruktioner för dialogbaserad brainstorming med
+    AI.
+:::
+
+## AI i kursen
+
+::: incremental
+-   Med AI har tröskeln för att på ett enkelt sätt lära sig att koda
+    blivit lägre
+-   I den här kursen så är tanken att AI främst ska användas för att
+    förstå felmeddelanden och för att förklara kod.
+-   Annars risk att ni lär er mindre än ni skulle.
+-   Krävs en ansträgning för att lära sig
+-   Pro tip, ange kodstil (tex tidyverse) vid använding av AI motorer
+:::
+
+## MIT Experiment
+
+-   MIT-experiment om AI-verktyg Källa: MIT Experiment
+-   Eric Klopfer, professor vid MIT, genomförde ett experiment i sin
+    datavetenskapskurs.
+
+. . .
+
+-   Studenterna delades in i tre grupper för att lösa ett problem i
+    Fortran:
+-   Grupp 1 använde ChatGPT
+-   Grupp 2 använde Metas Code Llama
+-   Grupp 3 använde Google
+
+. . .
+
+-   Resultat:
+-   ChatGPT-gruppen löste problemet snabbast.
+-   Code Llama-gruppen tog längre tid.
+-   Google-gruppen tog längst tid eftersom de bröt ner uppgiften i
+    mindre delar.
+
+. . .
+
+-   Resultat från minnestest:
+-   ChatGPT-gruppen kunde inte minnas lösningen.
+-   Hälften av Code Llama-gruppen klarade testet.
+-   Alla studenter i Google-gruppen klarade testet.
+
+## Andra resurser
+
+-   [Github copilot](https://docs.github.com/en/copilot/managing-copilot/managing-copilot-as-an-individual-subscriber/managing-your-copilot-subscription/getting-free-access-to-copilot-as-a-student-teacher-or-maintainer)
+-   [chattr: mlverse.github.io/chattr](https://mlverse.github.io/chattr)
+-   [AITutoR: psyteachr.github.io/AITutoR](https://psyteachr.github.io/AITutoR/)\
+-   [Elmer: elmer.tidyverse.org](https://elmer.tidyverse.org/)
+-   [Bok: data-analysis-with-ai-and-r](https://www.manning.com/books/data-analysis-with-ai-and-r)
+-   [Blogg med olika AI paket i R: luisdva.github.io/rstats/LLMsR/](https://luisdva.github.io/rstats/LLMsR/)

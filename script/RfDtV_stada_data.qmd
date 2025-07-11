@@ -1,0 +1,786 @@
+---
+title: "städa data"
+format: revealjs
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(janitor)
+library(stringr)
+library(lubridate)
+```
+
+```{r}
+#| echo: false
+
+raw_data <- tribble(
+  ~"Namn ",             ~" Ålder ", ~"KÖN",      ~"Stad ",      ~"Längd",     ~"Vikt_kg",   ~"Diagnos_Datum", ~"Diagnos ",   ~"  Info  ",   ~"Extra info",
+
+  #  1
+  "Maja Larsson",       "23",       "Kvinna",    "Stockholm",   "165 cm",    "65 kg",      "01/20/2020",  "Astma ",      " Info A ",    NA,
+  #  2
+  "Per Gustafsson",     "45",       "Man",       "Göteborg ",   "175 cm",    "80 kg",      "2020-03-05",  "KOL",         " Info B ",    NA,
+  #  3
+  "Sara Lindberg",      "37",       "Kvinna",    "Umeå",        "162 cm",    "70 kg",      "05/20/20",    "DIABETES",    " Info C ",    NA,
+  #  4
+  "Erik  Mattsson",     "29",       "Män",       " Malmö ",     "180 cm",    " 75 kg ",    "2020-07-15",  "Okänd",       " Extra Info ",NA,
+  #  5
+  "Johanna Berg",       "",         "KVINNA",    " Halmstad",   "168 cm",    "60 kg",      "07/09/2020",  "Astma",       "  ",          NA,
+  #  6 (Klas Öberg, rad 1 av 2 - EXAKT KOPIA)
+  "Klas Öberg",         "66",       "Man",       " Kalmar ",    "174 cm",    "90 kg",      "2020-12-20",  " KOL",        " ",           NA,
+  #  7 (Klas Öberg, rad 2 av 2 - EXAKT KOPIA)
+  "Klas Öberg",         "66",       "Man",       " Kalmar ",    "174 cm",    "90 kg",      "2020-12-20",  " KOL",        " ",           NA,
+  #  8
+  "Åsa Holm",           "54",       "Qvinna",    "Borås",       "170 cm",    "3 kg",       "2020-11-01",  "Bruten Fot",  "",            NA,
+  #  9
+  "Mikael Nilsson",     "40",       "Man",       "  Gävle",     "183 cm",    "90 kg",      "2020-02-14",  "Astma",       " Info D ",    NA,
+  # 10
+  "Louise Hansen",      "18",       "Kvinna",    " Sundsvall ", "160 cm",    "55 kg",      "2019-09-07",  "KOL",         "ExtraInfo",   NA,
+  # 11
+  "Oskar  Dahl",        "37",       "Man",       "Karlstad",    "178 cm",    "",           "09/07/19",    "Astma",       "info",        NA,
+  # 12
+  "Felicia Björk",      "25 ",      "Kvinna",    "Karlstad",    "162 cm",    "65 kg",      "",            "Diabetes",    "",            NA,
+  # 13
+  "Björn Karlsson",     "55",       "Man",       "  Örebro ",   "190 cm",    "105 kg",     "2020-03-15",  "  ",          " Extra ",     NA,
+  # 14
+  "Emmy Sandberg",      " 40",      "Kvinna",    "  Eskilstuna","164 cm",    "70 kg",      "2020-03-07",  "Astma",       "infoExtra",   NA,
+  # 15
+  "Amanda Ström",       " ",        "Okänd",     "   ",         "158 cm",    "62 kg",      "2020-03-07",  "Astma",       "N/A",         NA,
+  # 16 (Ingrid Pålsson: ändrad ålder -> 157)
+  "Ingrid Pålsson",     "157",      "Kvinna",    "Göteborg",    "170 cm",    "270 kg",      "2021-09-07",  "KOL ",        "Extra Info",  NA,
+  # 17 (Viktor Gran: ändrat BMI -> 3)
+  "Viktor Gran",        " 25",      "Man",       "  Lund",      "183 cm",    "68 kg",      "04/01/96",    "Astma",       "info G",      NA,
+  # 18
+  "Emelie Björndahl",   "",         "KVINNA",    " Malmö",      "162 cm",    "75 kg",      "",            "Diabetes",    "",            NA,
+  # 19
+  "Linus Dahlqvist",    "17",       "Man",       "Halmstad ",   "170 cm",    "80 kg",      "2020-11-11",  " KOL",        " Extra ",     NA,
+  # 20
+  "Elin Hellström",     "55",       "Kvinna",    "Örebro",      "166 cm",    "78 kg",      "2019-11-11",  "  ",          " Extra ",     NA,
+  # 21
+  "Martin Vikström",    "40 ",      "Man",       "Umeå",        "172 cm",    "80 kg",      "2019-09-07",  "Bruten Fot",  "",            NA,
+  # 22
+  "Cecilia Sand",       "33",       "Kvinna",    " Sthlm",      "168 cm",    "",           "2020-07-15",  "Astma",       "infoExtra",   NA,
+  # 23
+  "Fredrik Lind",       "50",       "Man",       "Sundsvall",   "177 cm",    "85 kg",      "09/01/72",    "KOL",         " Info F ",    NA,
+  # 24
+  "Anna-Lisa Sjögren",  "47",       "Kvinna",    "Kalmar",      "161 cm",    "58 kg",      "1975-09-07",  "Astma",       "info X",      NA,
+  # 25
+  "Carina Holmberg",    "60",       "Kvinna",    "Gävle",       "158 cm",    "85 kg",      "1962-05-12",  "  ",          "",            NA,
+  # 26
+  "Torbjörn Rask",      "59",       "Man",       " Borås",      "179 cm",    "",           "02/10/1963",  "Okänd",       "",            NA,
+  # 27
+  "Zandra Qvist",       "23",       "Kvinna",    "Göteborg",    "165 cm",    "60 kg",      "2020-01-01",  "KOL",         "Xtra",        NA,
+  # 28
+  "Axel Lund",          "18",       "Man",       "Sundsvall ",  "173 cm",    "70 kg",      "2020-01-01",  "Astma",       "",            NA,
+  # 29
+  "Maria  Lindqvist",   "45",       "Kvinna",    "  Lund",      "160 cm",    "70 kg",      "05/05/77",    "DIABETES",    " Info  T ",   NA,
+  # 30 (nästan tom sista rad)
+  NA,                   NA,         NA,          NA,            NA,          NA,           NA,            NA,            NA,            NA
+)
+```
+
+# Rensa/städa data
+
+Output ska vara ett rent dataset med alla individer fortfarande kvar i
+datasetet, inte att förväxlas med konceptet tidy data. Ren data ska vara
+korrekt och konsekvent.
+
+Beroende på användning kan det vara bra att skapa en kodbok i slutet av
+processen för att enkelt visa andra och ditt framtida jag vilken data
+som finns att tillgå.
+
+Innan du påbörjar processen, spara original rådata på säkert ställe.
+
+
+
+## Rensa/städa data
+
+1. Variabelnamn - inga mellanrum, tydliga, konsekventa
+2. White space
+3. Versaler/gemener
+4. Ta bort fullständiga rader/kolumner med missing
+5. Dubletter, exakt lika rader
+6. Separera kolumner
+7. Avidentifiera
+8. Extrahera nummer från textdata
+9. Ovanliga värden
+10. Felstavade kategorier
+11. Datumformat med lubridate (ISO8601)
+12. Klass för variabler
+13. Ta bort ""
+14. Skapa ny variabel: BMI
+
+## Översikt av rådata
+
+```{r}
+glimpse(raw_data)
+```
+
+## Funktioner för att få en översikt av data
+
+dplyr::glimpse()\
+skimr::skim()\
+base::summary()\
+visdat:vis_dat()\
+summarytools::dfSummary()\
+DataExplorer::create_report()\
+Hmisc::describe()
+
+## janitor, paket som har diverse vettiga funktioner
+
+## 1. Variabelnamn
+
+:::: panel-tabset
+## Problem
+
+```{r}
+glimpse(raw_data)
+```
+
+## Lösning
+
+```{r}
+#| code-line-numbers: "1|2|3,4,5"
+data_clean <- raw_data |> 
+  janitor::clean_names() |> # snake case
+  rename(
+    langd_cm = langd,
+    info_extra  = extra_info
+  )
+```
+
+## Bekräfta
+
+::: {layout-ncol="2"}
+```{r}
+colnames(raw_data)
+```
+
+```{r}
+colnames(data_clean)
+```
+:::
+::::
+
+## 2. White space
+
+-   Trimma whitespace
+
+::: panel-tabset
+## Problem
+
+```{r}
+glimpse(data_clean)
+```
+
+## Lösning
+
+```{r}
+data_clean <- data_clean |> 
+  mutate(
+    across(where(is.character), ~ str_trim(.x)), #Trimma bort whitespace i början och slutet av alla character-kolumner
+    across(where(is.character), ~ str_squish(.x)), # Ta bort onödiga mellanrum inom texten i alla character-kolumner
+  )
+  
+
+```
+
+## Bekräfta
+
+```{r}
+glimpse(data_clean)
+```
+:::
+
+
+
+## 3. Versaler/gemener
+
+-   Normalisera text
+
+::: panel-tabset
+## Problem
+
+```{r}
+glimpse(data_clean)
+```
+
+## Lösning
+
+```{r}
+data_clean <- data_clean |> 
+  mutate(
+    namn = str_to_title(namn), # Ändra namn till format där första bokstaven är versal och resten gemener'
+    diagnos = str_to_title(diagnos), # Ändra diagnos till format där första bokstaven är versal och resten gemener
+    stad = str_to_title(stad), # Ändra stad till samma format som namn (titelcase)
+    info = str_to_lower(info)  # Ändra kategorier till små bokstäver (lowercase)
+  )
+  
+
+```
+
+## Bekräfta
+
+```{r}
+glimpse(data_clean)
+```
+:::
+
+## 4. Ta bort fullständiga rader/kolumner med missing
+
+:::::: panel-tabset
+## Problem
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+#| code-line-numbers: "2|4|5"
+data_clean |> 
+  count(info_extra) |> 
+  print()
+```
+
+:::
+
+::: {.column width="50%"}
+```{r}
+#| code-line-numbers: "2"
+data_clean %>%
+  slice(25:30) |> 
+  print()
+```
+:::
+:::::
+
+## Lösning
+
+```{r}
+data_clean <-
+data_clean |> 
+janitor::remove_empty(which = c("rows", "cols"))
+```
+
+## Bekräfta
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+glimpse(data_clean)
+```
+
+:::
+
+::: {.column width="50%"}
+```{r}
+#| code-line-numbers: "2"
+data_clean %>%
+  slice(25:30) |> 
+  print()
+```
+:::
+:::::
+
+
+::::::
+
+## 5. Dubletter
+
+::: panel-tabset
+## Problem
+
+```{r}
+#| classes: plain
+#| html-table-processing: none
+data_clean |> 
+janitor::get_dupes()
+```
+
+## Lösning
+
+```{r}
+data_clean <- data_clean |> 
+  distinct(.keep_all = TRUE)
+```
+
+## Bekräfta
+
+```{r}
+data_clean |> 
+janitor::get_dupes()
+```
+:::
+
+## 6. Separera
+
+::: panel-tabset
+## Problem
+
+```{r}
+data_clean |> select(namn)
+```
+
+## Lösning
+
+```{r}
+data_clean <- data_clean %>%
+  separate(namn, into = c("fornamn", "efternamn"), sep = " ", remove = TRUE)
+```
+
+## Bekräfta
+
+```{r}
+data_clean |> select(fornamn, efternamn)
+```
+:::
+
+## 7. Avidentifiera
+
+::: panel-tabset
+## Problem
+
+```{r}
+data_clean |> select(fornamn, efternamn)
+```
+
+## Lösning
+
+```{r}
+data_clean <- data_clean |> 
+  mutate(
+    id = row_number() # unikt id för varje rad
+  ) |> 
+  select(id, everything(), -fornamn, -efternamn) # Rätt ordning och droppar namn variablerna
+```
+
+## Bekräfta
+
+```{r}
+#| warning: true
+colnames(data_clean)
+```
+:::
+
+## 8. Extrahera nummer från textdata
+
+::: panel-tabset
+## Problem
+
+```{r}
+data_clean |> 
+  select(vikt_kg, langd_cm) |> 
+  print()
+```
+
+## Lösning
+
+```{r}
+data_clean <-
+data_clean |> 
+  mutate(
+    vikt_kg = parse_number(vikt_kg),
+    langd_cm = parse_number(langd_cm)
+         )
+```
+
+## Bekräfta
+
+```{r}
+data_clean |> 
+  select(vikt_kg, langd_cm) |> 
+  print()
+```
+:::
+
+## 9. Ovanliga värden
+
+om ni hittar ovanliga värden som inte borde finnas så evaluera varför ni
+tror att dessa har uppstått, om ni tror att tex en person som väger
+150kg kan vara 120 cm lång
+
+::: panel-tabset
+## Problem
+
+```{r}
+data_clean |> 
+  ggplot(aes(langd_cm, vikt_kg)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+## Lösning
+
+```{r}
+data_clean <- data_clean %>%
+  mutate(
+    vikt_kg = if_else(vikt_kg <= 35 | vikt_kg > 250, NA_real_, vikt_kg),
+    langd_cm = if_else(langd_cm <= 100 | langd_cm > 230, NA_real_, langd_cm)
+  )
+
+
+```
+
+## Bekräfta
+
+```{r}
+
+data_clean |> 
+  ggplot(aes(langd_cm, vikt_kg)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+:::
+
+
+
+
+## 10. Felstavade kategorier
+
+::: panel-tabset
+## Problem
+
+```{r}
+
+data_clean |> 
+  pivot_longer(c(kon, diagnos)) |> 
+  count(name, value) |> 
+  arrange(name, n) |> 
+  print(n=71)
+
+
+```
+
+## Lösning
+
+```{r}
+data_clean <-
+data_clean |> 
+  mutate(
+    kon = case_when(
+      kon %in%  c("Män", "Man") ~ "Man",
+      kon %in%  c("Qvinna", "Kvinna", "KVINNA") ~ "Kvinna",
+      kon %in%  c("Okänd") ~ NA,
+      .default = kon
+    ),
+    diagnos = if_else(diagnos == "Okänd", NA, diagnos)
+  )
+```
+
+## Bekräfta
+
+```{r}
+
+data_clean |> 
+  count(kon)
+
+data_clean |> 
+  count(diagnos)
+
+```
+:::
+
+
+
+
+
+
+## 11. Datumformat med lubridate (ISO8601)
+
+-   YYYY-MM-DD, ISO 8601, internationell standard
+
+
+::: panel-tabset
+## Problem
+
+```{r}
+data_clean |> 
+  select(diagnos_datum) |> 
+  print(n=15)
+
+```
+
+## Lösning
+
+```{r}
+data_clean <-
+data_clean |> 
+  mutate(
+    diagnos_datum = as.Date(
+      lubridate::parse_date_time(diagnos_datum, orders = c("ymd", "dmy", "mdy"))
+    )
+  )
+```
+
+
+
+## Bekräfta
+
+```{r}
+data_clean |> 
+  select(diagnos_datum) |> 
+  print(n=15)
+
+
+```
+
+## Alterantiv
+
+-   mutate(diagnos_datum = lubridate::ymd(diagnos_datum))
+  
+-   janitor::convert_to_date()
+:::
+
+
+
+
+## 12. Klass för variabler
+
+
+
+::: panel-tabset
+## Problem
+
+```{r}
+
+
+glimpse(data_clean)
+
+```
+
+## Lösning
+
+```{r}
+data_clean <-
+data_clean |> 
+  mutate(
+    kon = as.factor(kon),
+    alder = as.numeric(alder)
+    )
+```
+
+## Bekräfta
+
+```{r}
+
+glimpse(data_clean)
+```
+:::
+
+## 13. Ta bort ""
+::: panel-tabset
+## Problem
+
+```{r}
+
+
+data_clean |> 
+  select(diagnos, info) |> 
+glimpse()
+
+```
+
+## Lösning
+
+```{r}
+data_clean <- data_clean |> 
+  mutate(
+    across(
+      where(is.character),
+      ~ na_if(.x, "")
+    )
+  )
+```
+
+## Bekräfta
+
+```{r}
+data_clean |> 
+  select(diagnos, info) |> 
+glimpse()
+```
+:::
+
+
+
+## 14. Skapa ny variabel: BMI
+
+
+
+::: panel-tabset
+## Problem
+
+```{r}
+
+data_clean |> 
+  select(langd_cm, vikt_kg)
+
+
+```
+
+## Lösning
+
+```{r}
+data_clean <- 
+  data_clean |> 
+  mutate(bmi = vikt_kg / ((langd_cm/100)^2), .after = vikt_kg)
+```
+
+## Bekräfta
+
+```{r}
+
+data_clean |> 
+  select(langd_cm, vikt_kg, bmi)
+```
+:::
+
+## Hela flödet
+
+
+
+
+```{r}
+
+
+data_clean <-
+  raw_data |>
+  # 1. Kolumnnamn
+  janitor::clean_names() |>
+  rename(
+    langd_cm = langd,
+    info_extra = extra_info
+  ) |>
+  
+  # 2–3. White space + Versaler/gemener samlat i EN mutate:
+  mutate(
+    # White space
+    across(where(is.character), str_trim),
+    across(where(is.character), str_squish),
+    # Versaler/gemener
+    namn = str_to_title(namn),
+    diagnos = str_to_title(diagnos),
+    stad = str_to_title(stad),
+    info = str_to_lower(info)
+  ) |>
+  
+  # 4. Ta bort fullständiga rader/kolumner med missing
+  janitor::remove_empty(which = c("rows", "cols")) |>
+  
+  # 5. Dubletter
+  distinct(.keep_all = TRUE) |>
+  
+  # 6. Separera
+  separate(namn, into = c("fornamn", "efternamn"), sep = " ", remove = TRUE) |>
+  
+  # 7. Avidentifiera (id) + välj kolumner
+  mutate(id = row_number()) |>
+  select(id, everything(), -fornamn, -efternamn) |>
+  
+  # 8–14. Samlade i EN mutate:
+  mutate(
+    # 8. Extrahera nummer
+    vikt_kg   = parse_number(vikt_kg),
+    langd_cm  = parse_number(langd_cm),
+    
+    # 9. Ovanliga värden (outliers -> NA)
+    vikt_kg   = if_else(vikt_kg <= 35 | vikt_kg > 250, NA_real_, vikt_kg),
+    langd_cm  = if_else(langd_cm <= 100 | langd_cm > 230, NA_real_, langd_cm),
+    
+    # 10. Felstavade kategorier
+    kon = case_when(
+      kon %in% c("Män", "Man") ~ "Man",
+      kon %in% c("Qvinna", "Kvinna", "KVINNA") ~ "Kvinna",
+      kon %in% "Okänd" ~ NA_character_,
+      .default = kon
+    ),
+    diagnos = if_else(diagnos == "Okänd", NA_character_, diagnos),
+    
+    # 11. Datumformat (ISO8601)
+    diagnos_datum = as.Date(
+      lubridate::parse_date_time(diagnos_datum, orders = c("ymd", "dmy", "mdy"))
+    ),
+    
+    # 12. Klass för variabler
+    kon   = as.factor(kon),
+    alder = as.numeric(alder),
+    
+    # 13. Ta bort tomma strängar
+    across(where(is.character), ~ na_if(.x, "")),
+    
+    # 14. Skapa ny variabel: BMI (lägg den efter vikt_kg)
+    bmi = vikt_kg / ((langd_cm / 100)^2),
+    .after = vikt_kg
+  )
+
+```
+
+
+
+## Kodbok
+
+Vi har en beskrivning för varje variabel:
+
+```{r}
+
+
+
+df_codebook <- codebookr::codebook(data_clean)
+
+print(df_codebook,"my_codebookr_codebook.docx")
+
+```
+
+## Spara data
+
+```{r}
+write_csv(data_clean, here::here("data", "clean_data_2024_05_06.csv"))
+
+```
+
+## 
+```{r}
+data_clean |> DT::datatable()
+```
+
+
+## 
+
+Variable names should be the first, and only the first, row of your data
+They should also adhere to best practices Variable names should Be
+unique Be meaningful (gender instead of X1) Not include spaces Not
+include special characters except \_ So no /, -, !, " Not start with a
+number or special character
+
+Values should be explicit, not implicit If a blank cell is implied to be
+zero, fill that cell with an actual zero No color coding should be used
+to indicate information. Make a new variable. Values should be
+analyzable. This means no more than one measure should be captured in a
+variable.
+
+Variables should be captured consistently within a column Dates captured
+consistently (i.e. YYYY-MM-DD) Categories captured consistently (both
+spelling and capitalization) If the variable is numeric, values should
+fall within your expected range
+
+
+
+-   `is.na()` för att hitta saknade värden\
+-   `complete.cases()` för att hitta rader utan saknade värden\
+-   `na.rm = TRUE` för att ignorera saknade värden i beräkningar\
+-   `na_if()`\
+-   `drop_na()` för att ta bort rader med saknade värden\
+
+| **Funktion** | **Syfte** | **Kategori** | **Del av Tidyverse?** |
+|------------------|------------------|------------------|------------------|
+| `is.na()` | Hitta saknade värden | Identifiering | Ja (dplyr) |
+| `complete.cases()` | Identifiera rader utan saknade värden | Identifiering | Nej (Base R) |
+| `na.rm = TRUE` | Ignorera saknade värden i beräkningar | Beräkning | Ja (dplyr, base R) |
+| `na_if()` | Omvandla specifika värden till NA | Ersättning | Ja (dplyr) |
+| `drop_na()` | Ta bort rader med saknade värden | Borttagning | Ja (tidyr) |
+| `na.omit()` | Ta bort rader med saknade värden | Borttagning | Nej (Base R) |
+
+filter() with if_all()
+
+filter() with if_any()

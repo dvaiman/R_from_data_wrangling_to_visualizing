@@ -1,0 +1,58 @@
+[
+  {
+    "objectID": "script/Untitled-1.html",
+    "href": "script/Untitled-1.html",
+    "title": "R: från datahantering till visualisering",
+    "section": "",
+    "text": "This course covers data wrangling and visualization techniques in R, with focus on tidyverse packages and modern data science workflows."
+  },
+  {
+    "objectID": "script/Untitled-1.html#course-overview",
+    "href": "script/Untitled-1.html#course-overview",
+    "title": "R: från datahantering till visualisering",
+    "section": "",
+    "text": "This course covers data wrangling and visualization techniques in R, with focus on tidyverse packages and modern data science workflows."
+  },
+  {
+    "objectID": "script/Untitled-1.html#slide-presentations",
+    "href": "script/Untitled-1.html#slide-presentations",
+    "title": "R: från datahantering till visualisering",
+    "section": "slide presentations",
+    "text": "slide presentations\n\ncore topics\n\nAI and machine learning\nexploratory data analysis\nintroduction to quarto\n\n\n\ndata manipulation\n\nintroduction\nclasses and objects\ndata manipulation part 2\ndata manipulation part 3\npivot operations\njoins\n\n\n\ndata import and cleaning\n\nimporting files\ncleaning data\nstring manipulation\ntables"
+  },
+  {
+    "objectID": "script/Untitled-1.html#about",
+    "href": "script/Untitled-1.html#about",
+    "title": "R: från datahantering till visualisering",
+    "section": "about",
+    "text": "about\ncourse materials for epidemiology researchers at GIH Swedish School of Sport and Health Sciences.\ninstructor: Daniel Väisänen, PhD institution: GIH Swedish School of Sport and Health Sciences"
+  },
+  {
+    "objectID": "script/index.html",
+    "href": "script/index.html",
+    "title": "R: från datahantering till visualisering",
+    "section": "",
+    "text": "This course covers data wrangling and visualization techniques in R, with focus on tidyverse packages and modern data science workflows."
+  },
+  {
+    "objectID": "script/index.html#course-overview",
+    "href": "script/index.html#course-overview",
+    "title": "R: från datahantering till visualisering",
+    "section": "",
+    "text": "This course covers data wrangling and visualization techniques in R, with focus on tidyverse packages and modern data science workflows."
+  },
+  {
+    "objectID": "script/index.html#slide-presentations",
+    "href": "script/index.html#slide-presentations",
+    "title": "R: från datahantering till visualisering",
+    "section": "slide presentations",
+    "text": "slide presentations\n\nIntro (working)\n\nintroduction\nclasses and objects\nAI and machine learning\ndata manipulation part 2\nintroduction to quarto\n\n\n\ndata manipulation (not working)\n\ndata manipulation part 3\npivot operations\njoins\n\n\n\ndata import and cleaning (not working)\n\nexploratory data analysis\nimporting files\ncleaning data\nstring manipulation\ntables"
+  },
+  {
+    "objectID": "script/index.html#about",
+    "href": "script/index.html#about",
+    "title": "R: från datahantering till visualisering",
+    "section": "about",
+    "text": "about\ncourse materials for R: från datahantering till visualisering at GIH Swedish School of Sport and Health Sciences.\ninstructor: Daniel Väisänen, PhD institution: GIH Swedish School of Sport and Health Sciences"
+  }
+]

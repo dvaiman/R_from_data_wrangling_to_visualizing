@@ -1,0 +1,47 @@
+---
+title: "R: from data wrangling to visualization"
+subtitle: "course slides"
+author: "Daniel Väisänen, PhD"
+format:
+  html:
+    embed-resources: true
+    format-links: false
+    navbar: false
+    toc: false
+    theme: [default, quartomonothemer_light2.scss]
+
+---
+
+## Course overview
+
+This course covers data wrangling and visualization techniques in R, with focus on tidyverse packages and modern data science workflows. Slides are in Swedish.
+
+## Slide presentations
+
+### Intro
+- [introduction](script/RfDtV_del1_intro.html)
+- [classes and objects](script/RfDtV_del1_klasser_och_objekt.html)
+- [AI](script/RfDtV_AI.html)
+- [visualization](script/RfDtV_del2.html)
+- [introduction to quarto](script/RfDtV_Quarto.html)
+
+### Data manipulation (not working)
+- [data manipulation part 3](script/RfDtV_del3.html)
+- [pivot operations](script/RfDtV_del4_pivot.html)
+- [joins](script/RfDtV_del5_joins.html)
+
+### Data import and cleaning (not working)
+- [exploratory data analysis](script/RfDtV_EDA.html)
+- [importing files](script/RfDtV_importera_filer.html)
+- [cleaning data](script/RfDtV_städa_data.html)
+- [string manipulation](script/RfDtV_stringr_forcats.html)
+- [tables](script/RfDtV_tabeller.html)
+
+## About
+
+course materials for **R: från datahantering till visualisering at GIH Swedish School of Sport and Health Sciences.**
+
+**Head of course:** Daniel Väisänen, PhD
+**Institution:** [GIH Swedish School of Sport and Health Sciences](https://gih.se)
+**Course repository:** [github](https://github.com/dvaiman/R_from_data_wrangling_to_visualizing?tab=readme-ov-file)
+**Course:** [gih.se](hhttps://www.gih.se/utbildning/vara-utbildningar/kurs/r-fran-datahantering-till-visualisering#:~:text=Denna%20kurs%20erbjuder%20en%20introduktion%20till%20R-programmering%20och,sina%20f%C3%A4rdigheter%20i%20R%20och%20effektivisera%20sina%20arbetsfl%C3%B6den.)

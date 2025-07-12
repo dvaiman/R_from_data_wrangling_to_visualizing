@@ -51,7 +51,7 @@ Vilket är det bästa sättet att visualisera ditt budskap?
 
 ```{r}
 #| echo: false
-#| 
+#|
 if (!requireNamespace("palmerpenguins", quietly = TRUE)) {
   install.packages("palmerpenguins")
 }
@@ -87,7 +87,7 @@ ggplot(data = penguins)
 
 ```{r}
 # Layer 2: x and y
-ggplot(data = penguins, 
+ggplot(data = penguins,
        mapping = aes(x = bill_length_mm, y = bill_depth_mm))
 ```
 
@@ -95,26 +95,26 @@ ggplot(data = penguins,
 
 ```{r}
 # Layer 3: geometric object(s)
-ggplot(data = penguins, 
-       mapping = aes(x = bill_length_mm, y = bill_depth_mm)) + 
-  geom_point() 
+ggplot(data = penguins,
+       mapping = aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point()
 ```
 
 ## Lager 4
 
 ```{r}
 # Layer 4: Facets
-ggplot(data = penguins, 
+ggplot(data = penguins,
        mapping = aes(x = bill_length_mm, y = bill_depth_mm)) +
-    geom_point() + 
-  facet_wrap(~species) 
+    geom_point() +
+  facet_wrap(~species)
 ```
 :::
 
 ##  {background-color="#344956"}
 
 ::: center-large-bold-yellow
-Lager 1: Data 
+Lager 1: Data
 :::
 
 ## Data
@@ -144,7 +144,7 @@ ggplot(data = penguins) +
 ## före
 
 ```{r}
-penguins |> 
+penguins |>
   ggplot() +
     geom_point(aes(x = bill_length_mm, y = bill_depth_mm))
 ```
@@ -153,7 +153,7 @@ penguins |>
 ##  {background-color="#344956"}
 
 ::: center-large-bold-yellow
-Lager 2: Aestethics 
+Lager 2: Aestethics
 :::
 
 ## Aesthetics/estetik
@@ -161,9 +161,9 @@ Lager 2: Aestethics
 
 ::: {.callout-tip icon=false title=""}
 
-## 
+##
 
-**Aesthetics** används för att länka variabler till visuella attribut i ggplot figurer. 
+**Aesthetics** används för att länka variabler till visuella attribut i ggplot figurer.
 
 **aes()** är platsen där du anger vilka variabler som ska bestämma tex x och y-axel värden, färg, fyllning eller form.
 :::
@@ -191,27 +191,27 @@ Lager 2: Aestethics
 
 :::incremental
 - Många av dessa aesthetics kan användas utanför `aes()`, vilket innebär att de inte är bundna till någon specifik datavariabel utan har ett fast värde.
-  
+
   - `geom_point(aes(x, y), alpha = 0.5))` (bestämmer transparens och har en skala från 0 till 1, där 0 är genomskinligt och 1 är fullt synlig).
 
 - **Global vs Lokal Mapping:**
-  
+
   - **Global Mapping:** Aesthetics specificerade inom `ggplot(aes())` gäller för alla geoms i plotten.
     ```r
     ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
       geom_point()
     ```
-  
+
   - **Lokal Mapping:** Aesthetics specificerade inom ett specifikt geom gäller endast för det geom-lagret.
-    
+
     ```r
     ggplot(penguins) +
       geom_point(aes(x = bill_length_mm, y = bill_depth_mm, color = species))
     ```
-    
+
 :::
-    
---- 
+
+---
 
 ::: panel-tabset
 ## color
@@ -247,7 +247,7 @@ ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = speci
 
 
 :::incremental
--   Skalor definierar hur data värden omvandlas till estetiska attribut som färg, storlek eller form. 
+-   Skalor definierar hur data värden omvandlas till estetiska attribut som färg, storlek eller form.
 
 -   Varje aesthetic-mappning har en motsvarande skala som styr hur värdena visualiseras.
 
@@ -256,7 +256,7 @@ ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = speci
 -   Guider hjälper till att tolka dessa mappningar genom axlar och legender.
 
    -    För positionsskalor fungerar axlarna som guider
-    
+
    -    För färgskalor fungerar legenderna som guider
 :::
 
@@ -283,7 +283,7 @@ ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = speci
 ```{r}
 ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = bill_length_mm)) +
   geom_point() +
-  scale_color_gradient(low = "blue", high = "red") 
+  scale_color_gradient(low = "blue", high = "red")
 ```
 
 ## Diskret variabel
@@ -303,7 +303,7 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
   geom_point() +
   scale_color_manual(values = c("Adelie" = "orange",
                                 "Chinstrap" = "steelblue",
-                                "Gentoo" = "gold4")) 
+                                "Gentoo" = "gold4"))
 ```
 
 ## Manuella breaks
@@ -315,7 +315,7 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
                                 "Chinstrap" = "steelblue",
                                 "Gentoo" = "gold4")) +
     scale_x_continuous(breaks = c(200, 210, 220),
-                     labels = c("Låg", "Medel", "Hög")) 
+                     labels = c("Låg", "Medel", "Hög"))
 ```
 
 ## log10
@@ -333,8 +333,8 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
 ## Namn
 
 ```{r}
-ggplot(mpg, aes(displ, hwy)) + 
-  geom_point(aes(colour = class)) + 
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
   scale_x_continuous(name = "Horizontella axeln") +
   scale_y_continuous(name = "Vertikala axeln")
 ```
@@ -346,7 +346,7 @@ ggplot(mpg, aes(displ, hwy)) +
 ::: {.panel-tabset}
 ## Beskrivning
 
-Varje skala är associerad med en guide (axlar och legender) som visar sambandet mellan det estetiska attributet och data. 
+Varje skala är associerad med en guide (axlar och legender) som visar sambandet mellan det estetiska attributet och data.
 
 ## Med en standard legend
 ```{r}
@@ -369,7 +369,7 @@ ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species, sha
   guides(
     color = guide_legend(title = "Species", keywidth = 5, keyheight = 2),
     shape = guide_legend(title = "Arter", keywidth = 5, keyheight = 2)
-  ) 
+  )
 ```
 
 ## Anpassad legend 2
@@ -385,9 +385,9 @@ ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species, sha
     shape = guide_legend(title = "Arter", keywidth = 5, keyheight = 2, override.aes = list(size = 5))
   )
 ```
-:::   
+:::
 
-## Relationen mellan Aesthetics, Scales, Guides, Legends, och Axes 
+## Relationen mellan Aesthetics, Scales, Guides, Legends, och Axes
 
 ```{r eval=FALSE, echo=FALSE}
 
@@ -396,23 +396,23 @@ ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species, sha
 grViz("
 digraph ggplot2_components {
   graph [layout = dot, rankdir = LR, fontsize=12, fontname=\"Arial\"]
-  
+
   # Nodstilinställningar
   node [shape = box, style=filled, fontname=\"Arial\", fontsize=12, color=white, fontcolor=black]
-  
+
   aesthetics [label = 'Aesthetics\\naes()', shape = box, style=filled, fillcolor=lightblue]
   scales [label = 'Scales\\nscale_x_continuous(), scale_color_manual()', shape = box, style=filled, fillcolor=indianred]
   guides [label = 'Guides', shape = box, style=filled, fillcolor=lightyellow]
   legends [label = 'Legends\\nguide_legend()', shape = box, style=filled, fillcolor=lightpink]
   axes [label = 'Axes\\nscale_x_continuous(), scale_y_continuous()', shape = box, style=filled, fillcolor=lightgrey]
-  
+
   aesthetics -> scales [label = 'map data to visual attributes']
   scales -> guides [label = 'define transformations']
   guides -> legends [label = 'provide interpretation']
   guides -> axes [label = 'provide interpretation']
-  
+
   Footnote [shape = plaintext, label = 'Diagram skapad med DiagrammeR', fontsize=10, fontname=\"Arial\", color=white]
-  
+
 }
 
 ")
@@ -434,7 +434,7 @@ digraph ggplot2_components {
     labelloc = \"b\",           # Placera etiketten längst ner
     label = 'Created with DiagrammeR'  # Fotnot
   ]
-  
+
   # Nodstilinställningar
   node [
     shape = box,
@@ -442,7 +442,7 @@ digraph ggplot2_components {
     fontname = \"Arial\",
     fontsize = 12
   ]
-  
+
   # Definiera huvudnoder och exempel-noder inom kluster
   subgraph cluster_aesthetics {
     label = \"\"
@@ -451,7 +451,7 @@ digraph ggplot2_components {
     Aesthetics_example [label = 'aes(x,y,fill,color)', fillcolor = lightblue, color = blue]
     Aesthetics -> Aesthetics_example [label = 'Map data to visual attributes', fontsize = 10, fontname = \"Arial\"]
   }
-  
+
   subgraph cluster_scales {
     label = \"\"
         color = none
@@ -459,7 +459,7 @@ digraph ggplot2_components {
     Scales_example [label = 'scale_x_continuous(),\\nscale_color_manual(),\\nscale_fill_continuous()', fillcolor = indianred, color = green]
     Scales -> Scales_example [label = 'Define transformations', fontsize = 10, fontname = \"Arial\"]
   }
-  
+
   subgraph cluster_guides {
     label = \"\"
         color = none
@@ -467,7 +467,7 @@ digraph ggplot2_components {
     Guides_example [label = 'guides()', fillcolor = lightyellow, color = orange]
     Guides -> Guides_example [label = 'Provide interpretation', fontsize = 10, fontname = \"Arial\"]
   }
-  
+
   subgraph cluster_legends {
     label = \"\"
         color = none
@@ -475,7 +475,7 @@ digraph ggplot2_components {
 
 
   }
-  
+
   subgraph cluster_axes {
     label = \"\"
         color = none
@@ -483,7 +483,7 @@ digraph ggplot2_components {
 
 
   }
-  
+
   # Definiera relationer mellan huvudnoder
   Aesthetics -> Scales [label = '']
   Scales -> Guides [label = '']
@@ -496,7 +496,7 @@ diagram
 ```
 
 
-## Relationen mellan Aesthetics, Guides, Legends, Scales och Axes 
+## Relationen mellan Aesthetics, Guides, Legends, Scales och Axes
 
 **Aesthetics**
 - **Definition:** Bestämmer hur data mappas till visuella attribut som färg, form, storlek, etc.
@@ -569,23 +569,23 @@ Senare lager skrivs ovanpå tidigare lager.
 
 ```{r}
 ggplot(penguins, aes(x = species, y = body_mass_g, fill = species)) +
-  geom_violin(alpha = 0.5) 
+  geom_violin(alpha = 0.5)
 ```
 
 ## geom_boxplot
 
 ```{r}
 ggplot(penguins, aes(x = species, y = body_mass_g, fill = species)) +
-  geom_violin(alpha = 0.5, trim = FALSE) +  
-  geom_boxplot(width = 0.2, alpha = 0.7) 
+  geom_violin(alpha = 0.5, trim = FALSE) +
+  geom_boxplot(width = 0.2, alpha = 0.7)
 ```
 
 ## geom_point
 
 ```{r}
 ggplot(penguins, aes(x = species, y = body_mass_g, fill = species)) +
-  geom_violin(alpha = 0.5, trim = FALSE) +  
-  geom_boxplot(width = 0.2, alpha = 0.7, outlier.shape = NA) +  
+  geom_violin(alpha = 0.5, trim = FALSE) +
+  geom_boxplot(width = 0.2, alpha = 0.7, outlier.shape = NA) +
   geom_point(position = position_jitter(width = 0.2), color = "black", alpha = 0.6)
 ```
 :::
@@ -594,14 +594,14 @@ ggplot(penguins, aes(x = species, y = body_mass_g, fill = species)) +
 
 ::: panel-tabset
 ## info
-Position är den tredje nödvändiga delen av ett lager, tillsammans med statistics och geoms. 
+Position är den tredje nödvändiga delen av ett lager, tillsammans med statistics och geoms.
 
 Position-delen av ett lager ansvarar för att "dodge", "jittra" och "nudge" grupper av data för att minimera deras överlappning, eller på annat sätt justera deras positioner.
 
 ## stack
 ```{r}
 ggplot(penguins, aes(x = species, fill = sex)) +
-  geom_bar(position = "stack") 
+  geom_bar(position = "stack")
 ```
 
 ## dodge
@@ -619,21 +619,21 @@ ggplot(penguins, aes(x = species, fill = sex)) +
 ## identity
 ```{r}
 ggplot(penguins, aes(x = species, fill = sex)) +
-  geom_bar(position = "identity", alpha = 0.6) 
+  geom_bar(position = "identity", alpha = 0.6)
 ```
 
 ## nudge
 ```{r}
 ggplot(penguins, aes(x = species, y = body_mass_g, color = sex)) +
- geom_point(position = position_nudge(x = 0.2))  
+ geom_point(position = position_nudge(x = 0.2))
 ```
 
 
 ## jitter
 ```{r}
 ggplot(penguins, aes(x = species, y = body_mass_g, color = sex)) +
-  geom_jitter(width = 0.2, alpha = 0.5)  
- 
+  geom_jitter(width = 0.2, alpha = 0.5)
+
 ```
 
 :::
@@ -641,7 +641,7 @@ ggplot(penguins, aes(x = species, y = body_mass_g, color = sex)) +
 ##  {background-color="#344956"}
 
 ::: center-large-bold-yellow
-Lager 4: Facets 
+Lager 4: Facets
 :::
 
 ## Facets
@@ -656,7 +656,7 @@ Facettering används för att skapa små multipla grafer baserat på kategoriska
 ```{r}
 ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point(aes(color = species)) +
-  facet_wrap(~ island) 
+  facet_wrap(~ island)
 ```
 
 ## facet_grid()
@@ -679,7 +679,7 @@ ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
 ##  {background-color="#344956"}
 
 ::: center-large-bold-yellow
-Lager 5: Statistics 
+Lager 5: Statistics
 :::
 
 ## Statistcs
@@ -706,17 +706,17 @@ Det finns två sätt att använda dessa stat-funktioner:
 ## Med stat
 
 ```{r}
-ggplot(penguins, aes(x = species, y = bill_length_mm)) + 
-  geom_point(alpha = 0.6) + 
-  stat_summary(geom = "point", fun = "mean", colour = "darkorange", size = 7) 
+ggplot(penguins, aes(x = species, y = bill_length_mm)) +
+  geom_point(alpha = 0.6) +
+  stat_summary(geom = "point", fun = "mean", colour = "darkorange", size = 7)
 ```
 
 ## Mer geom
 ```{r}
 # Rekomenderad eftersom den tydligt visar en sammanfattning, inte rå data.
-ggplot(penguins, aes(x = species, y = bill_length_mm)) + 
-  geom_point(alpha = 0.6) + 
-  geom_point(stat = "summary", fun = "mean", colour = "darkorange", size = 7) 
+ggplot(penguins, aes(x = species, y = bill_length_mm)) +
+  geom_point(alpha = 0.6) +
+  geom_point(stat = "summary", fun = "mean", colour = "darkorange", size = 7)
 ```
 
 ## stat_bin
@@ -730,7 +730,7 @@ stat_bin är statistiken som används för att skapa histogram. Den genererar f�
 
 ## stat_bin
 ```{r}
-ggplot(penguins, aes(body_mass_g)) + 
+ggplot(penguins, aes(body_mass_g)) +
   geom_histogram(binwidth = 100)
 ```
 
@@ -753,7 +753,7 @@ Lager 6: Coordinates
 ::: panel-tabset
 ## info
 
-Medan skalorna kontrollerar vilka värden som visas på axlarna och hur de mappas från data till position, är det koordinatsystemet som faktiskt ritar dem.  
+Medan skalorna kontrollerar vilka värden som visas på axlarna och hur de mappas från data till position, är det koordinatsystemet som faktiskt ritar dem.
 
 Ett koordinatsystem kombinerar två positioner/variabler, x och y, för att placera objekt i en 2D-rymd mellan dessa.
 
@@ -761,20 +761,20 @@ Ett koordinatsystem kombinerar två positioner/variabler, x och y, för att plac
 Det finns `linjära` och `icke linjära` koordinatsystem
 
 
-	
+
 ## basplot
 
 ```{r}
 
-bas <- ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) + 
-  geom_point() + 
+bas <- ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
   geom_smooth()
 
 
 bas
 ```
 
-	
+
 ## coord_cartesian()
 
 ```{r}
@@ -788,13 +788,13 @@ bas + coord_cartesian(xlim = c(40, 60))
 
 ```{r}
 bas +
-  coord_flip() 
+  coord_flip()
 ```
 
 ## coord_fixed
 
 ```{r}
-bas + 
+bas +
   coord_fixed(ratio = 1)  # Aspect ratio 1:1
 ```
 
@@ -802,9 +802,9 @@ bas +
 ```{r}
 rect <- data.frame(x = 50, y = 50)
 line <- data.frame(x = c(1, 200), y = c(100, 1))
-base <- ggplot(mapping = aes(x, y)) + 
-  geom_tile(data = rect, aes(width = 50, height = 50)) + 
-  geom_line(data = line) + 
+base <- ggplot(mapping = aes(x, y)) +
+  geom_tile(data = rect, aes(width = 50, height = 50)) +
+  geom_line(data = line) +
   xlab(NULL) + ylab(NULL)
 base
 base + coord_polar("x")
@@ -814,16 +814,16 @@ base + coord_polar("y")
 ## coord_polar()
 
 ```{r}
-bas <- ggplot(penguins, aes(x = "", fill = species)) + 
-  geom_bar(width = 1) 
+bas <- ggplot(penguins, aes(x = "", fill = species)) +
+  geom_bar(width = 1)
 
 bas
 
-bas + 
-  coord_polar(theta = "y") 
+bas +
+  coord_polar(theta = "y")
 
-bas + 
-  coord_polar(theta = "x") 
+bas +
+  coord_polar(theta = "x")
 ```
 
 
@@ -846,7 +846,7 @@ ggplot(world_map, aes(x = long, y = lat, group = group)) +
 ##  {background-color="#344956"}
 
 ::: center-large-bold-yellow
-Lager 7: Themes 
+Lager 7: Themes
 :::
 
 ## Themes
@@ -861,7 +861,7 @@ Teman påverkar grafens övergripande visuella utseende inklusive typsnitt, fär
 ```{r}
 ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
   geom_point() +
-  theme_minimal() 
+  theme_minimal()
 ```
 
 ## theme_classic()
@@ -893,7 +893,7 @@ ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
 ##  {background-color="#344956"}
 
 ::: center-large-bold-yellow
-Spara 
+Spara
 :::
 
 
@@ -954,4 +954,3 @@ ggsave(filename = "minfigur.png",  # Namnge filen och ange filformat, t.ex. .pdf
 -   **Colors**
     -   [projects.susielu.com/viz-palette](projects.susielu.com/viz-palette)
     -   [blog.datawrapper.de/beautifulcolors](https://blog.datawrapper.de/beautifulcolors/)
-
